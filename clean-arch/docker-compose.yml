@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    container_name: clean_nest_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clean_nest
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d clean_nest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: .
+    container_name: clean_nest_api
+    environment:
+      DATABASE_URL: "postgresql://user:pass@db:5432/clean_nest"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:

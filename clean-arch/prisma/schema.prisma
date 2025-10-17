@@ -1,0 +1,24 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Director {
+  id   String @id @default(uuid())
+  name String
+  nationality String
+  birth_day String
+  movies Movie[]
+}
+
+model Movie {
+  id         String   @id @default(uuid())
+  title      String
+  year  String
+  directorId String
+  director   Director @relation(fields: [directorId], references: [id])
+}
