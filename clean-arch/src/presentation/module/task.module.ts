@@ -1,0 +1,53 @@
+import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TaskController } from '../controllers/task/task.controller';
+import { CreateTaskUseCase } from '../../application/use-cases/task/create-task.use-case';
+import { UpdateTaskUseCase } from '../../application/use-cases/task/update-task.use-case';
+import { DeleteTaskUseCase } from '../../application/use-cases/task/delete-task.use-case';
+import { GetTaskUseCase } from '../../application/use-cases/task/get-task.use-case';
+import { ListTasksUseCase } from '../../application/use-cases/task/list-tasks.use-case';
+import { TaskRepository } from '../../domain/repositories/task.repository';
+import { PrismaTaskRepository } from '../../infrastructure/database/repositories/prisma-task.repository';
+import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { JwtStrategy } from '../../infrastructure/auth/strategies/jwt.strategy';
+
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [TaskController],
+  providers: [
+    // Use Cases (EVENT_PUBLISHER injected from global MessagingModule)
+    CreateTaskUseCase,
+    UpdateTaskUseCase,
+    DeleteTaskUseCase,
+    GetTaskUseCase,
+    ListTasksUseCase,
+    // Repositories
+    {
+      provide: TaskRepository,
+      useClass: PrismaTaskRepository,
+    },
+    // Infrastructure
+    PrismaService,
+    JwtStrategy,
+  ],
+  exports: [
+    CreateTaskUseCase,
+    UpdateTaskUseCase,
+    DeleteTaskUseCase,
+    GetTaskUseCase,
+    ListTasksUseCase,
+  ],
+})
+export class TaskModule {}
