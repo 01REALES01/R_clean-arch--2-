@@ -4,10 +4,12 @@ import { Task, TaskPriority } from '../../../domain/entities/task.entity';
 import { CreateTaskDto } from '../../dto/task/create-task.dto';
 import { EventPublisher, EVENT_PUBLISHER } from '../../ports/event-publisher.port';
 import { TaskCreatedEvent } from '../../../domain/events/task.events';
+import { TASK_REPOSITORY } from '../../tokens/repository.tokens';
 
 @Injectable()
 export class CreateTaskUseCase {
   constructor(
+    @Inject(TASK_REPOSITORY)
     private readonly taskRepository: TaskRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly eventPublisher: EventPublisher,

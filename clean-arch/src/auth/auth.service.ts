@@ -1,8 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../domain/entities/user.entity';
 import { UserRepository } from '../domain/repositories/user.repository';
+import { USER_REPOSITORY } from '../application/tokens/repository.tokens';
 import * as bcrypt from 'bcrypt';
 
 type JwtPayload = {
@@ -13,6 +14,7 @@ type JwtPayload = {
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -51,12 +53,14 @@ export class AuthService {
   async register(registerDto: { email: string; password: string }) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     
-    const user = await this.userRepository.create({
-      ...registerDto,
+    const user = User.create({
+      email: registerDto.email,
       password: hashedPassword,
     });
 
-    const { password, ...result } = user;
+    const savedUser = await this.userRepository.create(user);
+
+    const { password, ...result } = savedUser;
     return result;
   }
 }

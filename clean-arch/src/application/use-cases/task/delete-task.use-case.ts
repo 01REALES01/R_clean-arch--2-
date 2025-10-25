@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { TaskRepository } from '../../../domain/repositories/task.repository';
+import { TASK_REPOSITORY } from '../../tokens/repository.tokens';
 
 @Injectable()
 export class DeleteTaskUseCase {
-  constructor(private readonly taskRepository: TaskRepository) {}
+  constructor(@Inject(TASK_REPOSITORY) private readonly taskRepository: TaskRepository) {}
 
   async execute(taskId: string, userId: string): Promise<void> {
     // Find the task

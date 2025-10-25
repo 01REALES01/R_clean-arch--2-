@@ -39,7 +39,11 @@ export class TaskController {
   @ApiResponse({ status: 201, description: 'Task created successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(@Body() createTaskDto: CreateTaskDto, @Request() req: any) {
-    return this.createTaskUseCase.execute(createTaskDto, req.user.id);
+    const applicationDto = {
+      ...createTaskDto,
+      dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : undefined,
+    };
+    return this.createTaskUseCase.execute(applicationDto, req.user.id);
   }
 
   @Get()
@@ -69,7 +73,11 @@ export class TaskController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Request() req: any,
   ) {
-    return this.updateTaskUseCase.execute(id, updateTaskDto, req.user.id);
+    const applicationDto = {
+      ...updateTaskDto,
+      dueDate: updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : undefined,
+    };
+    return this.updateTaskUseCase.execute(id, applicationDto, req.user.id);
   }
 
   @Delete(':id')

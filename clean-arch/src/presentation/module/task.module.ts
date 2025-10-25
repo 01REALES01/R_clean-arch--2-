@@ -12,6 +12,7 @@ import { TaskRepository } from '../../domain/repositories/task.repository';
 import { PrismaTaskRepository } from '../../infrastructure/database/repositories/prisma-task.repository';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { JwtStrategy } from '../../infrastructure/auth/strategies/jwt.strategy';
+import { TASK_REPOSITORY } from '../../application/tokens/repository.tokens';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { JwtStrategy } from '../../infrastructure/auth/strategies/jwt.strategy';
     ListTasksUseCase,
     // Repositories
     {
-      provide: TaskRepository,
+      provide: TASK_REPOSITORY,
       useClass: PrismaTaskRepository,
     },
     // Infrastructure

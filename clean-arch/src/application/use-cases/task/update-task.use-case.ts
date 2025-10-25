@@ -4,10 +4,12 @@ import { Task } from '../../../domain/entities/task.entity';
 import { UpdateTaskDto } from '../../dto/task/update-task.dto';
 import { EventPublisher, EVENT_PUBLISHER } from '../../ports/event-publisher.port';
 import { TaskUpdatedEvent } from '../../../domain/events/task.events';
+import { TASK_REPOSITORY } from '../../tokens/repository.tokens';
 
 @Injectable()
 export class UpdateTaskUseCase {
   constructor(
+    @Inject(TASK_REPOSITORY)
     private readonly taskRepository: TaskRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly eventPublisher: EventPublisher,

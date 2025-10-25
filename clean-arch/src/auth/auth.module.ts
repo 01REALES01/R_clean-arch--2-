@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from '../presentation/controllers/auth/auth.controller';
 import { JwtStrategy } from '../infrastructure/auth/strategies/jwt.strategy';
 import { UserRepository } from '../domain/repositories/user.repository';
+import { USER_REPOSITORY } from '../application/tokens/repository.tokens';
 import { PrismaService } from '../infrastructure/database/prisma.service';
 import { PrismaUserRepository } from '../infrastructure/database/repositories/prisma-user.repository';
 
@@ -26,7 +27,7 @@ import { PrismaUserRepository } from '../infrastructure/database/repositories/pr
     AuthService,
     JwtStrategy,
     {
-      provide: UserRepository,
+      provide: USER_REPOSITORY,
       useClass: PrismaUserRepository,
     },
     PrismaService,
