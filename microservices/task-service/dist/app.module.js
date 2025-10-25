@@ -12,6 +12,7 @@ const config_1 = require("@nestjs/config");
 const auth_module_1 = require("./auth/auth.module");
 const task_module_1 = require("./presentation/module/task.module");
 const messaging_module_1 = require("./infrastructure/messaging/messaging.module");
+const health_controller_1 = require("./presentation/controllers/health/health.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -23,6 +24,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             task_module_1.TaskModule,
         ],
+        controllers: [health_controller_1.HealthController],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

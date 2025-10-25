@@ -35,6 +35,9 @@ let TaskEventHandler = class TaskEventHandler {
                 case 'task.updated':
                     await this.handleTaskUpdated(data);
                     break;
+                case 'task.deleted':
+                    await this.handleTaskDeleted(data);
+                    break;
                 default:
                     console.log(`Unknown pattern: ${pattern}`);
             }
@@ -72,6 +75,22 @@ let TaskEventHandler = class TaskEventHandler {
         });
         await this.notificationRepository.create(notification);
         console.log('✅ Notification created for task.updated');
+    }
+    async handleTaskDeleted(event) {
+        console.log('📬 Handling task.deleted event:', event);
+        const notification = notification_entity_1.Notification.create({
+            userId: event.userId,
+            type: notification_entity_1.NotificationType.TASK_DELETED,
+            title: 'Task Deleted',
+            message: `Your task "${event.title}" has been deleted.`,
+            status: notification_entity_1.NotificationStatus.PENDING,
+            metadata: {
+                taskId: event.taskId,
+                deletedAt: event.deletedAt,
+            },
+        });
+        await this.notificationRepository.create(notification);
+        console.log('✅ Notification created for task.deleted');
     }
 };
 exports.TaskEventHandler = TaskEventHandler;

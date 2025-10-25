@@ -29,3 +29,10 @@ export interface TaskOverdueEvent {
   title: string;
   dueDate: Date;
 }
+
+export interface TaskDeletedEvent {
+  taskId: string;
+  userId: string;
+  title: string;
+  deletedAt: Date;
+}

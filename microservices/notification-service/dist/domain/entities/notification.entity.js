@@ -5,6 +5,7 @@ var NotificationType;
 (function (NotificationType) {
     NotificationType["TASK_CREATED"] = "TASK_CREATED";
     NotificationType["TASK_UPDATED"] = "TASK_UPDATED";
+    NotificationType["TASK_DELETED"] = "TASK_DELETED";
     NotificationType["TASK_DUE_SOON"] = "TASK_DUE_SOON";
     NotificationType["TASK_OVERDUE"] = "TASK_OVERDUE";
     NotificationType["DAILY_SUMMARY"] = "DAILY_SUMMARY";

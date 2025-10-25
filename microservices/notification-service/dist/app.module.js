@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const notification_module_1 = require("./presentation/module/notification.module");
 const messaging_module_1 = require("./infrastructure/messaging/messaging.module");
+const health_controller_1 = require("./presentation/controllers/health/health.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -21,6 +22,7 @@ exports.AppModule = AppModule = __decorate([
             messaging_module_1.MessagingModule,
             notification_module_1.NotificationModule,
         ],
+        controllers: [health_controller_1.HealthController],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

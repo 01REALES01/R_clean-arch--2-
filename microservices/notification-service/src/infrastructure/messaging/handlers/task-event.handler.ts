@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { RabbitMQService } from '../rabbitmq.service';
-import { TaskCreatedEvent, TaskUpdatedEvent } from '../../../domain/events/task.events';
+import { TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent } from '../../../domain/events/task.events';
 import { NotificationRepository } from '../../../domain/repositories/notification.repository';
 import { Notification, NotificationType, NotificationStatus } from '../../../domain/entities/notification.entity';
 import { NOTIFICATION_REPOSITORY } from '../../../application/tokens/repository.tokens';
@@ -29,6 +29,9 @@ export class TaskEventHandler implements OnModuleInit {
           break;
         case 'task.updated':
           await this.handleTaskUpdated(data);
+          break;
+        case 'task.deleted':
+          await this.handleTaskDeleted(data);
           break;
         default:
           console.log(`Unknown pattern: ${pattern}`);
@@ -75,5 +78,25 @@ export class TaskEventHandler implements OnModuleInit {
 
     await this.notificationRepository.create(notification);
     console.log('✅ Notification created for task.updated');
+  }
+
+  private async handleTaskDeleted(event: TaskDeletedEvent): Promise<void> {
+    console.log('📬 Handling task.deleted event:', event);
+
+    // Create notification for task deletion
+    const notification = Notification.create({
+      userId: event.userId,
+      type: NotificationType.TASK_DELETED,
+      title: 'Task Deleted',
+      message: `Your task "${event.title}" has been deleted.`,
+      status: NotificationStatus.PENDING,
+      metadata: {
+        taskId: event.taskId,
+        deletedAt: event.deletedAt,
+      },
+    });
+
+    await this.notificationRepository.create(notification);
+    console.log('✅ Notification created for task.deleted');
   }
 }

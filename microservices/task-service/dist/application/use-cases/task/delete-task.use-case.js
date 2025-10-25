@@ -14,10 +14,12 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteTaskUseCase = void 0;
 const common_1 = require("@nestjs/common");
+const event_publisher_port_1 = require("../../ports/event-publisher.port");
 const repository_tokens_1 = require("../../tokens/repository.tokens");
 let DeleteTaskUseCase = class DeleteTaskUseCase {
-    constructor(taskRepository) {
+    constructor(taskRepository, eventPublisher) {
         this.taskRepository = taskRepository;
+        this.eventPublisher = eventPublisher;
     }
     async execute(taskId, userId) {
         const task = await this.taskRepository.findById(taskId);
@@ -28,12 +30,20 @@ let DeleteTaskUseCase = class DeleteTaskUseCase {
             throw new common_1.ForbiddenException('You do not have permission to delete this task');
         }
         await this.taskRepository.delete(taskId);
+        const event = {
+            taskId: task.id,
+            userId: task.userId,
+            title: task.title,
+            deletedAt: new Date(),
+        };
+        await this.eventPublisher.publish('task.deleted', event);
     }
 };
 exports.DeleteTaskUseCase = DeleteTaskUseCase;
 exports.DeleteTaskUseCase = DeleteTaskUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)(repository_tokens_1.TASK_REPOSITORY)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, common_1.Inject)(event_publisher_port_1.EVENT_PUBLISHER)),
+    __metadata("design:paramtypes", [Object, Object])
 ], DeleteTaskUseCase);
 //# sourceMappingURL=delete-task.use-case.js.map

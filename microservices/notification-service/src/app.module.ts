@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { NotificationModule } from './presentation/module/notification.module';
 import { MessagingModule } from './infrastructure/messaging/messaging.module';
+import { HealthController } from './presentation/controllers/health/health.controller';
 
 @Module({
   imports: [
@@ -10,5 +11,6 @@ import { MessagingModule } from './infrastructure/messaging/messaging.module';
     NotificationModule,
     // AuthModule and TaskModule removed - handled by task-service
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
