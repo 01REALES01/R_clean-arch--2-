@@ -1,0 +1,99 @@
+### TaskFlow API Testing
+### Make sure the server is running: npm run start:dev
+### API: http://localhost:3000
+### Swagger: http://localhost:3000/api
+
+@baseUrl = http://localhost:3000
+@token = YOUR_JWT_TOKEN_HERE
+
+### ===================================
+### 1. AUTHENTICATION
+### ===================================
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### Login (save the access_token from response)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### ===================================
+### 2. TASK MANAGEMENT (Protected)
+### ===================================
+
+### Create a new task
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Complete TaskFlow setup",
+  "description": "Finish implementing the microservices architecture",
+  "priority": "HIGH",
+  "dueDate": "2025-10-30T12:00:00Z"
+}
+
+### Create another task
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Test RabbitMQ integration",
+  "description": "Verify events are being published correctly",
+  "priority": "MEDIUM",
+  "status": "IN_PROGRESS"
+}
+
+### Get all tasks for current user
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{token}}
+
+### Get tasks by status (PENDING)
+GET {{baseUrl}}/tasks?status=PENDING
+Authorization: Bearer {{token}}
+
+### Get tasks by status (IN_PROGRESS)
+GET {{baseUrl}}/tasks?status=IN_PROGRESS
+Authorization: Bearer {{token}}
+
+### Get specific task (replace with actual task ID)
+GET {{baseUrl}}/tasks/TASK_ID_HERE
+Authorization: Bearer {{token}}
+
+### Update task status
+PATCH {{baseUrl}}/tasks/TASK_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### Update task completely
+PATCH {{baseUrl}}/tasks/TASK_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Updated task title",
+  "description": "Updated description",
+  "status": "COMPLETED",
+  "priority": "LOW"
+}
+
+### Delete task
+DELETE {{baseUrl}}/tasks/TASK_ID_HERE
+Authorization: Bearer {{token}}
+

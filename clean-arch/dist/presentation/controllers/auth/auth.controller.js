@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("../../../auth/auth.service");
 const login_dto_1 = require("../../dto/login.dto");
 const register_dto_1 = require("../../dto/register.dto");
-const local_auth_guard_1 = require("../../../infrastructure/auth/guards/local-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 let AuthController = class AuthController {
     constructor(authService) {
@@ -27,8 +26,14 @@ let AuthController = class AuthController {
         return this.authService.register(registerDto);
     }
     async login(loginDto) {
-        const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-        return this.authService.login(user);
+        try {
+            const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+            return this.authService.login(user);
+        }
+        catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
     }
 };
 exports.AuthController = AuthController;
@@ -43,7 +48,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
-    (0, common_1.UseGuards)(local_auth_guard_1.LocalAuthGuard),
     (0, common_1.Post)('login'),
     (0, swagger_1.ApiOperation)({ summary: 'Login user' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully logged in' }),

@@ -81,6 +81,7 @@ enum NotificationType {
 
 enum NotificationStatus {
   PENDING
+  READ
   SENT
   FAILED
 }

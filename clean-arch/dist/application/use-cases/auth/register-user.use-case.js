@@ -8,10 +8,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterUserUseCase = void 0;
 const common_1 = require("@nestjs/common");
 const user_entity_1 = require("../../../domain/entities/user.entity");
+const repository_tokens_1 = require("../../tokens/repository.tokens");
 const bcrypt = require("bcrypt");
 let RegisterUserUseCase = class RegisterUserUseCase {
     constructor(userRepository) {
@@ -19,19 +23,20 @@ let RegisterUserUseCase = class RegisterUserUseCase {
     }
     async execute(dto) {
         const hashedPassword = await bcrypt.hash(dto.password, 10);
-        const user = user_entity_1.User.create({
+        const userData = {
             email: dto.email,
             password: hashedPassword,
             role: user_entity_1.UserRole.USER,
-        });
-        const createdUser = await this.userRepository.create(user);
-        const { password, ...userWithoutPassword } = user;
+        };
+        const createdUser = await this.userRepository.create(userData);
+        const { password, ...userWithoutPassword } = createdUser;
         return userWithoutPassword;
     }
 };
 exports.RegisterUserUseCase = RegisterUserUseCase;
 exports.RegisterUserUseCase = RegisterUserUseCase = __decorate([
     (0, common_1.Injectable)(),
+    __param(0, (0, common_1.Inject)(repository_tokens_1.USER_REPOSITORY)),
     __metadata("design:paramtypes", [Object])
 ], RegisterUserUseCase);
 //# sourceMappingURL=register-user.use-case.js.map

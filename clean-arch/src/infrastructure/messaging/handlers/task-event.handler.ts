@@ -1,13 +1,15 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { RabbitMQService } from '../rabbitmq.service';
 import { TaskCreatedEvent, TaskUpdatedEvent } from '../../../domain/events/task.events';
 import { NotificationRepository } from '../../../domain/repositories/notification.repository';
 import { Notification, NotificationType, NotificationStatus } from '../../../domain/entities/notification.entity';
+import { NOTIFICATION_REPOSITORY } from '../../../application/tokens/repository.tokens';
 
 @Injectable()
 export class TaskEventHandler implements OnModuleInit {
   constructor(
     private readonly rabbitMQService: RabbitMQService,
+    @Inject(NOTIFICATION_REPOSITORY)
     private readonly notificationRepository: NotificationRepository,
   ) {}
 

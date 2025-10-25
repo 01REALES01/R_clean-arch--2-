@@ -7,13 +7,15 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private connection: amqp.Connection;
   private channel: amqp.Channel;
   private readonly url: string;
+  private connectionPromise: Promise<void>;
 
   constructor(private readonly configService: ConfigService) {
     this.url = this.configService.get<string>('RABBITMQ_URL') || 'amqp://localhost:5672';
   }
 
   async onModuleInit() {
-    await this.connect();
+    this.connectionPromise = this.connect();
+    await this.connectionPromise;
   }
 
   async onModuleDestroy() {
@@ -27,7 +29,17 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       console.log('✅ RabbitMQ connected successfully');
     } catch (error) {
       console.error('❌ Failed to connect to RabbitMQ:', error.message);
-      throw error;
+      // Don't throw - allow app to start without RabbitMQ
+      console.log('⚠️  App will continue without RabbitMQ messaging');
+    }
+  }
+  
+  private async ensureConnection(): Promise<void> {
+    if (this.connectionPromise) {
+      await this.connectionPromise;
+    }
+    if (!this.channel) {
+      throw new Error('RabbitMQ channel is not available');
     }
   }
 
@@ -43,6 +55,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
   async publish(queue: string, message: any): Promise<boolean> {
     try {
+      await this.ensureConnection();
       await this.channel.assertQueue(queue, { durable: true });
       const sent = this.channel.sendToQueue(
         queue,
@@ -57,12 +70,13 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       return sent;
     } catch (error) {
       console.error(`❌ Failed to publish message to queue ${queue}:`, error.message);
-      throw error;
+      return false;
     }
   }
 
   async consume(queue: string, callback: (message: any) => Promise<void>): Promise<void> {
     try {
+      await this.ensureConnection();
       await this.channel.assertQueue(queue, { durable: true });
       
       this.channel.consume(queue, async (msg) => {
@@ -84,7 +98,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       console.log(`👂 Listening to queue: ${queue}`);
     } catch (error) {
       console.error(`❌ Failed to consume from queue ${queue}:`, error.message);
-      throw error;
+      console.log('⚠️  Event consumption will be disabled');
     }
   }
 

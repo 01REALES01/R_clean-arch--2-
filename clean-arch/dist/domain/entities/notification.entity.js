@@ -12,6 +12,7 @@ var NotificationType;
 var NotificationStatus;
 (function (NotificationStatus) {
     NotificationStatus["PENDING"] = "PENDING";
+    NotificationStatus["READ"] = "READ";
     NotificationStatus["SENT"] = "SENT";
     NotificationStatus["FAILED"] = "FAILED";
 })(NotificationStatus || (exports.NotificationStatus = NotificationStatus = {}));
@@ -30,6 +31,9 @@ class Notification {
     static create(props) {
         const now = new Date();
         return new Notification(props.id || '', props.userId, props.type, props.title, props.message, props.status || NotificationStatus.PENDING, props.metadata || {}, props.createdAt || now, props.sentAt || null);
+    }
+    markAsRead() {
+        this.status = NotificationStatus.READ;
     }
     markAsSent() {
         this.status = NotificationStatus.SENT;

@@ -8,6 +8,7 @@ export enum NotificationType {
 
 export enum NotificationStatus {
   PENDING = 'PENDING',
+  READ = 'READ',
   SENT = 'SENT',
   FAILED = 'FAILED',
 }
@@ -48,6 +49,10 @@ export class Notification {
       props.createdAt || now,
       props.sentAt || null,
     );
+  }
+
+  markAsRead(): void {
+    this.status = NotificationStatus.READ;
   }
 
   markAsSent(): void {

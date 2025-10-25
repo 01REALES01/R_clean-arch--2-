@@ -19,7 +19,8 @@ let RabbitMQService = class RabbitMQService {
         this.url = this.configService.get('RABBITMQ_URL') || 'amqp://localhost:5672';
     }
     async onModuleInit() {
-        await this.connect();
+        this.connectionPromise = this.connect();
+        await this.connectionPromise;
     }
     async onModuleDestroy() {
         await this.disconnect();
@@ -32,7 +33,15 @@ let RabbitMQService = class RabbitMQService {
         }
         catch (error) {
             console.error('❌ Failed to connect to RabbitMQ:', error.message);
-            throw error;
+            console.log('⚠️  App will continue without RabbitMQ messaging');
+        }
+    }
+    async ensureConnection() {
+        if (this.connectionPromise) {
+            await this.connectionPromise;
+        }
+        if (!this.channel) {
+            throw new Error('RabbitMQ channel is not available');
         }
     }
     async disconnect() {
@@ -48,6 +57,7 @@ let RabbitMQService = class RabbitMQService {
     }
     async publish(queue, message) {
         try {
+            await this.ensureConnection();
             await this.channel.assertQueue(queue, { durable: true });
             const sent = this.channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), { persistent: true });
             if (sent) {
@@ -57,11 +67,12 @@ let RabbitMQService = class RabbitMQService {
         }
         catch (error) {
             console.error(`❌ Failed to publish message to queue ${queue}:`, error.message);
-            throw error;
+            return false;
         }
     }
     async consume(queue, callback) {
         try {
+            await this.ensureConnection();
             await this.channel.assertQueue(queue, { durable: true });
             this.channel.consume(queue, async (msg) => {
                 if (msg) {
@@ -81,7 +92,7 @@ let RabbitMQService = class RabbitMQService {
         }
         catch (error) {
             console.error(`❌ Failed to consume from queue ${queue}:`, error.message);
-            throw error;
+            console.log('⚠️  Event consumption will be disabled');
         }
     }
     getChannel() {

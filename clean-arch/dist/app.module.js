@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const auth_module_1 = require("./auth/auth.module");
 const task_module_1 = require("./presentation/module/task.module");
+const notification_module_1 = require("./presentation/module/notification.module");
 const messaging_module_1 = require("./infrastructure/messaging/messaging.module");
 let AppModule = class AppModule {
 };
@@ -22,6 +23,7 @@ exports.AppModule = AppModule = __decorate([
             messaging_module_1.MessagingModule,
             auth_module_1.AuthModule,
             task_module_1.TaskModule,
+            notification_module_1.NotificationModule,
         ],
     })
 ], AppModule);

@@ -53,11 +53,12 @@ let AuthService = class AuthService {
     }
     async register(registerDto) {
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-        const user = user_entity_1.User.create({
+        const userData = {
             email: registerDto.email,
             password: hashedPassword,
-        });
-        const savedUser = await this.userRepository.create(user);
+            role: user_entity_1.UserRole.USER,
+        };
+        const savedUser = await this.userRepository.create(userData);
         const { password, ...result } = savedUser;
         return result;
     }
