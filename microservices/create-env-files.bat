@@ -28,6 +28,15 @@ echo JWT_EXPIRATION="1d"
 echo NODE_ENV="development"
 echo PORT=3001
 echo SERVICE_NAME="notification-service"
+echo.
+echo # Email Configuration (Optional - leave blank to disable emails)
+echo # For Gmail: smtp.gmail.com, port 587, use App Password not regular password
+echo # Get App Password: https://myaccount.google.com/apppasswords
+echo SMTP_HOST=
+echo SMTP_PORT=587
+echo SMTP_USER=
+echo SMTP_PASS=
+echo SMTP_FROM=
 ) > notification-service\.env
 
 if exist notification-service\.env (

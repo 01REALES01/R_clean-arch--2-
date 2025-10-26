@@ -74,6 +74,7 @@ model Notification {
 enum NotificationType {
   TASK_CREATED
   TASK_UPDATED
+  TASK_DELETED
   TASK_DUE_SOON
   TASK_OVERDUE
   DAILY_SUMMARY

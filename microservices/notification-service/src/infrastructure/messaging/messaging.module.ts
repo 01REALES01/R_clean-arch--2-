@@ -5,10 +5,11 @@ import { TaskEventHandler } from './handlers/task-event.handler';
 import { NOTIFICATION_REPOSITORY } from '../../application/tokens/repository.tokens';
 import { PrismaNotificationRepository } from '../database/repositories/prisma-notification.repository';
 import { PrismaService } from '../database/prisma.service';
+import { EmailModule } from '../email/email.module';
 
 @Global()
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, EmailModule],
   providers: [
     RabbitMQService,
     PrismaService,

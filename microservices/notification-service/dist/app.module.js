@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const notification_module_1 = require("./presentation/module/notification.module");
 const messaging_module_1 = require("./infrastructure/messaging/messaging.module");
+const email_module_1 = require("./infrastructure/email/email.module");
 const health_controller_1 = require("./presentation/controllers/health/health.controller");
 let AppModule = class AppModule {
 };
@@ -19,6 +20,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            email_module_1.EmailModule,
             messaging_module_1.MessagingModule,
             notification_module_1.NotificationModule,
         ],

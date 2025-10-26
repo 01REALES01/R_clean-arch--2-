@@ -4,6 +4,8 @@ import { TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent } from '../../../d
 import { NotificationRepository } from '../../../domain/repositories/notification.repository';
 import { Notification, NotificationType, NotificationStatus } from '../../../domain/entities/notification.entity';
 import { NOTIFICATION_REPOSITORY } from '../../../application/tokens/repository.tokens';
+import { EmailService } from '../../email/email.service';
+import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class TaskEventHandler implements OnModuleInit {
@@ -11,6 +13,8 @@ export class TaskEventHandler implements OnModuleInit {
     private readonly rabbitMQService: RabbitMQService,
     @Inject(NOTIFICATION_REPOSITORY)
     private readonly notificationRepository: NotificationRepository,
+    private readonly emailService: EmailService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async onModuleInit() {
@@ -57,6 +61,9 @@ export class TaskEventHandler implements OnModuleInit {
 
     await this.notificationRepository.create(notification);
     console.log('✅ Notification created for task.created');
+
+    // Send email notification
+    await this.sendEmailForNotification(event.userId, notification);
   }
 
   private async handleTaskUpdated(event: TaskUpdatedEvent): Promise<void> {
@@ -78,6 +85,9 @@ export class TaskEventHandler implements OnModuleInit {
 
     await this.notificationRepository.create(notification);
     console.log('✅ Notification created for task.updated');
+
+    // Send email notification
+    await this.sendEmailForNotification(event.userId, notification);
   }
 
   private async handleTaskDeleted(event: TaskDeletedEvent): Promise<void> {
@@ -98,5 +108,34 @@ export class TaskEventHandler implements OnModuleInit {
 
     await this.notificationRepository.create(notification);
     console.log('✅ Notification created for task.deleted');
+
+    // Send email notification
+    await this.sendEmailForNotification(event.userId, notification);
+  }
+
+  private async sendEmailForNotification(userId: string, notification: Notification): Promise<void> {
+    try {
+      // Get user email from database
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (!user) {
+        console.log('⚠️  User not found, skipping email');
+        return;
+      }
+
+      // Send email
+      await this.emailService.sendTaskNotification({
+        userEmail: user.email,
+        title: notification.title,
+        message: notification.message,
+        taskDetails: notification.metadata,
+      });
+    } catch (error) {
+      console.error('❌ Failed to send email notification:', error.message);
+      // Don't throw - we don't want to fail the notification creation if email fails
+    }
   }
 }

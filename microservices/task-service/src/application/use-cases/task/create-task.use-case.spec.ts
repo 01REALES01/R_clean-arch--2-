@@ -34,7 +34,7 @@ describe('CreateTaskUseCase', () => {
     it('should create a task and publish TaskCreatedEvent', async () => {
       // Arrange
       const userId = 'user-123';
-      const taskData = {
+      const taskData: any = {
         title: 'Test Task',
         description: 'Test Description',
         dueDate: '2025-12-31',
@@ -46,7 +46,7 @@ describe('CreateTaskUseCase', () => {
         userId,
         title: taskData.title,
         description: taskData.description,
-        status: TaskStatus.TODO,
+        status: TaskStatus.PENDING,
         priority: taskData.priority,
         dueDate: new Date(taskData.dueDate),
         createdAt: new Date(),
@@ -65,7 +65,6 @@ describe('CreateTaskUseCase', () => {
           userId,
           title: taskData.title,
           description: taskData.description,
-          status: TaskStatus.TODO,
           priority: taskData.priority,
         })
       );
@@ -96,7 +95,7 @@ describe('CreateTaskUseCase', () => {
         userId,
         title: taskData.title,
         description: taskData.description,
-        status: TaskStatus.TODO,
+        status: TaskStatus.PENDING,
         priority: TaskPriority.MEDIUM,
         dueDate: null,
         createdAt: new Date(),

@@ -17,10 +17,14 @@ const common_1 = require("@nestjs/common");
 const rabbitmq_service_1 = require("../rabbitmq.service");
 const notification_entity_1 = require("../../../domain/entities/notification.entity");
 const repository_tokens_1 = require("../../../application/tokens/repository.tokens");
+const email_service_1 = require("../../email/email.service");
+const prisma_service_1 = require("../../database/prisma.service");
 let TaskEventHandler = class TaskEventHandler {
-    constructor(rabbitMQService, notificationRepository) {
+    constructor(rabbitMQService, notificationRepository, emailService, prisma) {
         this.rabbitMQService = rabbitMQService;
         this.notificationRepository = notificationRepository;
+        this.emailService = emailService;
+        this.prisma = prisma;
     }
     async onModuleInit() {
         await this.consumeTaskEvents();
@@ -58,6 +62,7 @@ let TaskEventHandler = class TaskEventHandler {
         });
         await this.notificationRepository.create(notification);
         console.log('✅ Notification created for task.created');
+        await this.sendEmailForNotification(event.userId, notification);
     }
     async handleTaskUpdated(event) {
         console.log('📬 Handling task.updated event:', event);
@@ -75,6 +80,7 @@ let TaskEventHandler = class TaskEventHandler {
         });
         await this.notificationRepository.create(notification);
         console.log('✅ Notification created for task.updated');
+        await this.sendEmailForNotification(event.userId, notification);
     }
     async handleTaskDeleted(event) {
         console.log('📬 Handling task.deleted event:', event);
@@ -91,12 +97,35 @@ let TaskEventHandler = class TaskEventHandler {
         });
         await this.notificationRepository.create(notification);
         console.log('✅ Notification created for task.deleted');
+        await this.sendEmailForNotification(event.userId, notification);
+    }
+    async sendEmailForNotification(userId, notification) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { email: true },
+            });
+            if (!user) {
+                console.log('⚠️  User not found, skipping email');
+                return;
+            }
+            await this.emailService.sendTaskNotification({
+                userEmail: user.email,
+                title: notification.title,
+                message: notification.message,
+                taskDetails: notification.metadata,
+            });
+        }
+        catch (error) {
+            console.error('❌ Failed to send email notification:', error.message);
+        }
     }
 };
 exports.TaskEventHandler = TaskEventHandler;
 exports.TaskEventHandler = TaskEventHandler = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, common_1.Inject)(repository_tokens_1.NOTIFICATION_REPOSITORY)),
-    __metadata("design:paramtypes", [rabbitmq_service_1.RabbitMQService, Object])
+    __metadata("design:paramtypes", [rabbitmq_service_1.RabbitMQService, Object, email_service_1.EmailService,
+        prisma_service_1.PrismaService])
 ], TaskEventHandler);
 //# sourceMappingURL=task-event.handler.js.map
