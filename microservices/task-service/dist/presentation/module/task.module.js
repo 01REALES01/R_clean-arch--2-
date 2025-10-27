@@ -12,6 +12,7 @@ const passport_1 = require("@nestjs/passport");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const task_controller_1 = require("../controllers/task/task.controller");
+const admin_controller_1 = require("../controllers/admin/admin.controller");
 const create_task_use_case_1 = require("../../application/use-cases/task/create-task.use-case");
 const update_task_use_case_1 = require("../../application/use-cases/task/update-task.use-case");
 const delete_task_use_case_1 = require("../../application/use-cases/task/delete-task.use-case");
@@ -37,7 +38,7 @@ exports.TaskModule = TaskModule = __decorate([
                 inject: [config_1.ConfigService],
             }),
         ],
-        controllers: [task_controller_1.TaskController],
+        controllers: [task_controller_1.TaskController, admin_controller_1.AdminController],
         providers: [
             create_task_use_case_1.CreateTaskUseCase,
             update_task_use_case_1.UpdateTaskUseCase,

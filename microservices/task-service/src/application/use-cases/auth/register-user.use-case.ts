@@ -12,15 +12,18 @@ export class RegisterUserUseCase {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(dto: RegisterUserDto): Promise<Omit<User, 'password'>> {
+  async execute(dto: RegisterUserDto & { role?: 'USER' | 'ADMIN' }): Promise<Omit<User, 'password'>> {
     // Hash the password
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // Determine role - default to USER, but allow override for admin registration
+    const role = dto.role === 'ADMIN' ? UserRole.ADMIN : UserRole.USER;
 
     // Create user data without id, createdAt, updatedAt (let Prisma generate them)
     const userData = {
       email: dto.email,
       password: hashedPassword,
-      role: UserRole.USER,
+      role,
     };
 
     const createdUser = await this.userRepository.create(userData);

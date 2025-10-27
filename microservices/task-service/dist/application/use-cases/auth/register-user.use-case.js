@@ -23,10 +23,11 @@ let RegisterUserUseCase = class RegisterUserUseCase {
     }
     async execute(dto) {
         const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const role = dto.role === 'ADMIN' ? user_entity_1.UserRole.ADMIN : user_entity_1.UserRole.USER;
         const userData = {
             email: dto.email,
             password: hashedPassword,
-            role: user_entity_1.UserRole.USER,
+            role,
         };
         const createdUser = await this.userRepository.create(userData);
         const { password, ...userWithoutPassword } = createdUser;

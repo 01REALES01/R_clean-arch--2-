@@ -14,44 +14,84 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
-const auth_service_1 = require("../../../auth/auth.service");
-const login_dto_1 = require("../../dto/login.dto");
-const register_dto_1 = require("../../dto/register.dto");
 const swagger_1 = require("@nestjs/swagger");
+const auth_service_1 = require("../../../auth/auth.service");
+const register_dto_1 = require("../../dto/register.dto");
+const login_dto_1 = require("../../dto/login.dto");
+const user_entity_1 = require("../../../domain/entities/user.entity");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
     async register(registerDto) {
-        return this.authService.register(registerDto);
+        const result = await this.authService.register({
+            email: registerDto.email,
+            password: registerDto.password,
+        });
+        return {
+            message: 'User registered successfully',
+            user: {
+                id: result.id,
+                email: result.email,
+                role: result.role,
+            },
+        };
+    }
+    async registerAdmin(registerDto) {
+        const result = await this.authService.register({
+            email: registerDto.email,
+            password: registerDto.password,
+            role: user_entity_1.UserRole.ADMIN,
+        });
+        return {
+            message: 'Admin user registered successfully',
+            user: {
+                id: result.id,
+                email: result.email,
+                role: result.role,
+            },
+            warning: 'This endpoint should be removed in production!',
+        };
     }
     async login(loginDto) {
-        try {
-            const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-            return this.authService.login(user);
-        }
-        catch (error) {
-            console.error('Login error:', error);
-            throw error;
-        }
+        const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+        const result = await this.authService.login(user);
+        return {
+            message: 'Login successful',
+            access_token: result.access_token,
+            user: result.user,
+        };
     }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully registered' }),
-    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new user (default role: USER)' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User registered successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid input or user already exists' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
+    (0, common_1.Post)('register-admin'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Register an ADMIN user (for demo/testing only)',
+        description: 'In production, this endpoint should be secured or removed. Use it to create admin accounts for testing.'
+    }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Admin user registered successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid input or user already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerAdmin", null);
+__decorate([
     (0, common_1.Post)('login'),
-    (0, swagger_1.ApiOperation)({ summary: 'Login user' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully logged in' }),
-    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Login with email and password' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Login successful' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),

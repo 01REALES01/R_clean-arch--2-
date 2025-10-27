@@ -6,6 +6,8 @@ describe('TaskEventHandler', () => {
     let handler;
     let mockRabbitMQService;
     let mockNotificationRepository;
+    let mockEmailService;
+    let mockPrismaService;
     beforeEach(() => {
         mockRabbitMQService = {
             consume: jest.fn(),
@@ -18,7 +20,15 @@ describe('TaskEventHandler', () => {
             update: jest.fn(),
             delete: jest.fn(),
         };
-        handler = new task_event_handler_1.TaskEventHandler(mockRabbitMQService, mockNotificationRepository);
+        mockEmailService = {
+            sendTaskNotification: jest.fn().mockResolvedValue(true),
+        };
+        mockPrismaService = {
+            user: {
+                findUnique: jest.fn().mockResolvedValue({ email: 'test@example.com' }),
+            },
+        };
+        handler = new task_event_handler_1.TaskEventHandler(mockRabbitMQService, mockNotificationRepository, mockEmailService, mockPrismaService);
     });
     afterEach(() => {
         jest.clearAllMocks();

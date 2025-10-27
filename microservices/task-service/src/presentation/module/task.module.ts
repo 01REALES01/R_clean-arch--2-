@@ -3,6 +3,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TaskController } from '../controllers/task/task.controller';
+import { AdminController } from '../controllers/admin/admin.controller';
 import { CreateTaskUseCase } from '../../application/use-cases/task/create-task.use-case';
 import { UpdateTaskUseCase } from '../../application/use-cases/task/update-task.use-case';
 import { DeleteTaskUseCase } from '../../application/use-cases/task/delete-task.use-case';
@@ -26,7 +27,7 @@ import { TASK_REPOSITORY } from '../../application/tokens/repository.tokens';
       inject: [ConfigService],
     }),
   ],
-  controllers: [TaskController],
+  controllers: [TaskController, AdminController],
   providers: [
     // Use Cases (EVENT_PUBLISHER injected from global MessagingModule)
     CreateTaskUseCase,

@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   async login(user: Omit<User, 'password'>) {
-    const payload: JwtPayload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload, {
         secret: this.configService.get<string>('JWT_SECRET'),
@@ -50,14 +50,14 @@ export class AuthService {
     };
   }
 
-  async register(registerDto: { email: string; password: string }) {
+  async register(registerDto: { email: string; password: string; role?: UserRole }) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     
     // Create user data without id, createdAt, updatedAt (let Prisma generate them)
     const userData = {
       email: registerDto.email,
       password: hashedPassword,
-      role: UserRole.USER,
+      role: registerDto.role || UserRole.USER, // Default to USER, but allow override
     };
 
     const savedUser = await this.userRepository.create(userData);

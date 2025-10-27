@@ -7,6 +7,7 @@ import { User, UserRole } from '../../../domain/entities/user.entity';
 type JwtPayload = {
   sub: string;
   email: string;
+  role: UserRole;
 };
 
 @Injectable()
@@ -24,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       id: payload.sub,
       email: payload.email,
       password: '', // We don't store the password in the JWT
-      role: UserRole.USER, // Default role
+      role: payload.role || UserRole.USER, // Use role from JWT
       createdAt: new Date(),
       updatedAt: new Date(),
     };

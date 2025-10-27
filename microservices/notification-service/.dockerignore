@@ -1,6 +1,12 @@
 node_modules
-.git
-.env
 dist
+.env
+.env.local
+.git
+.gitignore
+*.md
+npm-debug.log
+.DS_Store
 coverage
-Dockerfile*
+.vscode
+.idea
