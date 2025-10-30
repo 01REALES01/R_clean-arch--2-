@@ -345,6 +345,32 @@ docker-compose logs -f rabbitmq
 
 ## 🐛 Troubleshooting
 
+### Error: Puerto 3000 o 3001 en uso
+
+**Síntoma:**
+```
+Error: listen EADDRINUSE: address already in use :::3000
+```
+
+**Solución Rápida:**
+```bash
+# Windows - Usa el script
+cd microservices
+stop-services.bat
+
+# O con PowerShell
+.\stop-services.ps1
+
+# O manualmente
+netstat -ano | findstr :3000
+taskkill /F /PID <PID>
+```
+
+**Solución PowerShell (Una línea):**
+```powershell
+Get-Process -Id (Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
 ### PostgreSQL no inicia
 
 ```bash

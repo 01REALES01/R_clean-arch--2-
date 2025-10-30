@@ -1,4 +1,4 @@
-# 🚀 TaskFlow - Microservices Clean Architecture
+z# 🚀 TaskFlow - Microservices Clean Architecture
 
 > Sistema de gestión de tareas construido con Clean Architecture y comunicación basada en eventos
 
@@ -343,6 +343,22 @@ constructor(
 
 ## 🚦 Comandos Útiles
 
+### Gestión de Servicios Node.js
+
+```bash
+# Detener servicios en puertos 3000 y 3001
+cd microservices
+stop-services.bat           # Windows (CMD)
+.\stop-services.ps1        # Windows (PowerShell)
+
+# O manualmente por puerto
+netstat -ano | findstr :3000
+taskkill /F /PID <PID>
+
+# PowerShell (una línea por puerto)
+Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process -Force
+```
+
 ### Gestión de Docker
 
 ```bash
@@ -396,12 +412,17 @@ npx prisma studio
 ### Windows
 
 ```bash
-# Iniciar todo
+# Iniciar infraestructura (Docker)
 cd microservices
 start-docker.bat
 
-# Detener todo
+# Detener infraestructura
 stop-docker.bat
+
+# Detener servicios Node.js (puertos 3000 y 3001)
+stop-services.bat
+# O con PowerShell
+.\stop-services.ps1
 ```
 
 ### Linux/Mac
