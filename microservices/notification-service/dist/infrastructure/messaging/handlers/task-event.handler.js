@@ -52,8 +52,8 @@ let TaskEventHandler = class TaskEventHandler {
         const notification = notification_entity_1.Notification.create({
             userId: event.userId,
             type: notification_entity_1.NotificationType.TASK_CREATED,
-            title: 'New Task Created',
-            message: `Your task "${event.title}" has been created successfully.`,
+            title: `Task Created: ${event.title}`,
+            message: `Your task has been created successfully.`,
             status: notification_entity_1.NotificationStatus.PENDING,
             metadata: {
                 taskId: event.taskId,
@@ -69,8 +69,8 @@ let TaskEventHandler = class TaskEventHandler {
         const notification = notification_entity_1.Notification.create({
             userId: event.userId,
             type: notification_entity_1.NotificationType.TASK_UPDATED,
-            title: 'Task Updated',
-            message: `Your task "${event.title}" has been updated. Status: ${event.status}`,
+            title: `Task Updated: ${event.title}`,
+            message: `Your task has been updated. New status: ${event.status}`,
             status: notification_entity_1.NotificationStatus.PENDING,
             metadata: {
                 taskId: event.taskId,
@@ -87,8 +87,8 @@ let TaskEventHandler = class TaskEventHandler {
         const notification = notification_entity_1.Notification.create({
             userId: event.userId,
             type: notification_entity_1.NotificationType.TASK_DELETED,
-            title: 'Task Deleted',
-            message: `Your task "${event.title}" has been deleted.`,
+            title: `Task Deleted: ${event.title}`,
+            message: `Your task has been deleted.`,
             status: notification_entity_1.NotificationStatus.PENDING,
             metadata: {
                 taskId: event.taskId,

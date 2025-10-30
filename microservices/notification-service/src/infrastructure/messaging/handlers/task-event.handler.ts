@@ -50,8 +50,8 @@ export class TaskEventHandler implements OnModuleInit {
     const notification = Notification.create({
       userId: event.userId,
       type: NotificationType.TASK_CREATED,
-      title: 'New Task Created',
-      message: `Your task "${event.title}" has been created successfully.`,
+      title: `Task Created: ${event.title}`,
+      message: `Your task has been created successfully.`,
       status: NotificationStatus.PENDING,
       metadata: {
         taskId: event.taskId,
@@ -73,8 +73,8 @@ export class TaskEventHandler implements OnModuleInit {
     const notification = Notification.create({
       userId: event.userId,
       type: NotificationType.TASK_UPDATED,
-      title: 'Task Updated',
-      message: `Your task "${event.title}" has been updated. Status: ${event.status}`,
+      title: `Task Updated: ${event.title}`,
+      message: `Your task has been updated. New status: ${event.status}`,
       status: NotificationStatus.PENDING,
       metadata: {
         taskId: event.taskId,
@@ -97,8 +97,8 @@ export class TaskEventHandler implements OnModuleInit {
     const notification = Notification.create({
       userId: event.userId,
       type: NotificationType.TASK_DELETED,
-      title: 'Task Deleted',
-      message: `Your task "${event.title}" has been deleted.`,
+      title: `Task Deleted: ${event.title}`,
+      message: `Your task has been deleted.`,
       status: NotificationStatus.PENDING,
       metadata: {
         taskId: event.taskId,

@@ -52,12 +52,12 @@ Make sure your services are running:
 2. Click "Try it out"
 3. Try this payload:
 ```json
-{
-  "title": "Complete project documentation",
-  "description": "Write comprehensive docs for the TaskFlow project",
-  "priority": "HIGH",
-  "dueDate": "2025-10-30T12:00:00Z"
-}
+   {
+   "title": "Complete project documentation",
+   "description": "Write comprehensive docs for the TaskFlow project",
+   "priority": "HIGH",
+   "dueDate": "2025-10-30T12:00:00Z"
+   }
 ```
 4. Click **Execute**
 5. ✅ A notification will be automatically created via RabbitMQ!
