@@ -7,4 +7,4 @@ README.md
 .env.local
 *.log
 .DS_Store
-frontend
+

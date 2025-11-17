@@ -100,6 +100,20 @@ services:
       retries: 3
       start_period: 40s
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: taskflow_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - task-service
+      - notification-service
+    networks:
+      - taskflow-network
+
 networks:
   taskflow-network:
     driver: bridge
