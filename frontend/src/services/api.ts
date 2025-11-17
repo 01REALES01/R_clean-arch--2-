@@ -152,8 +152,12 @@ class ApiService {
     return response.data;
   }
 
-  async getAllTasks(status?: string): Promise<{ total: number; tasks: Task[] }> {
-    const url = status ? `/admin/tasks/all?status=${status}` : '/admin/tasks/all';
+  async getAllTasks(status?: string, priority?: string): Promise<{ total: number; tasks: Task[] }> {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (priority) params.append('priority', priority);
+    const queryString = params.toString();
+    const url = queryString ? `/admin/tasks/all?${queryString}` : '/admin/tasks/all';
     const response = await this.taskApi.get<{ total: number; tasks: Task[] }>(url);
     return response.data;
   }

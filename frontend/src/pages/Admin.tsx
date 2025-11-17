@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiService } from '../services/api';
-import type { AdminStatistics, User, Task } from '../types';
+import type { AdminStatistics, User, Task, TaskStatus, TaskPriority } from '../types';
+import { TaskStatus as TaskStatusEnum, TaskPriority as TaskPriorityEnum } from '../types';
 import './Admin.css';
 
 export default function Admin() {
@@ -9,6 +10,8 @@ export default function Admin() {
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'tasks'>('stats');
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('');
 
   useEffect(() => {
     loadData();
@@ -30,14 +33,20 @@ export default function Admin() {
     }
   };
 
-  const loadAllTasks = async () => {
+  const loadAllTasks = async (status?: TaskStatus | '', priority?: TaskPriority | '') => {
     try {
-      const tasksData = await apiService.getAllTasks();
+      const tasksData = await apiService.getAllTasks(
+        status !== undefined ? (status || undefined) : (statusFilter || undefined),
+        priority !== undefined ? (priority || undefined) : (priorityFilter || undefined),
+      );
       setAllTasks(tasksData.tasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
     }
   };
+
+  // Note: We don't auto-reload on filter change to avoid too many API calls
+  // User must click "Aplicar Filtros" button
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('¿Estás seguro de eliminar este usuario y todas sus tareas?')) return;
@@ -78,7 +87,12 @@ export default function Admin() {
           className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('tasks');
-            if (allTasks.length === 0) loadAllTasks();
+            if (allTasks.length === 0) {
+              // Reset filters and load all tasks
+              setStatusFilter('');
+              setPriorityFilter('');
+              loadAllTasks();
+            }
           }}
         >
           Todas las Tareas
@@ -140,6 +154,17 @@ export default function Admin() {
               <div className="stat-value-large">{statistics.notifications.total}</div>
               <div className="stat-label">Total de Notificaciones</div>
             </div>
+            {statistics.notifications.byUser && statistics.notifications.byUser.length > 0 && (
+              <div className="priority-breakdown">
+                <h3>Por Usuario</h3>
+                {statistics.notifications.byUser.map((item) => (
+                  <div key={item.userId} className="breakdown-item">
+                    <span>{item.userEmail}:</span>
+                    <strong>{item.count}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -171,23 +196,62 @@ export default function Admin() {
 
       {activeTab === 'tasks' && (
         <div className="admin-tasks">
+          <div className="tasks-filters">
+            <div className="filter-group">
+              <label htmlFor="status-filter">Filtrar por Estado:</label>
+              <select
+                id="status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
+                className="filter-select"
+              >
+                <option value="">Todos</option>
+                <option value={TaskStatusEnum.PENDING}>Pendiente</option>
+                <option value={TaskStatusEnum.IN_PROGRESS}>En Progreso</option>
+                <option value={TaskStatusEnum.COMPLETED}>Completada</option>
+                <option value={TaskStatusEnum.CANCELLED}>Cancelada</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="priority-filter">Filtrar por Prioridad:</label>
+              <select
+                id="priority-filter"
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
+                className="filter-select"
+              >
+                <option value="">Todas</option>
+                <option value={TaskPriorityEnum.LOW}>Baja</option>
+                <option value={TaskPriorityEnum.MEDIUM}>Media</option>
+                <option value={TaskPriorityEnum.HIGH}>Alta</option>
+                <option value={TaskPriorityEnum.URGENT}>Urgente</option>
+              </select>
+            </div>
+            <button onClick={() => loadAllTasks()} className="btn-primary">
+              Aplicar Filtros
+            </button>
+          </div>
           <div className="tasks-list">
-            {allTasks.map((task) => (
-              <div key={task.id} className="task-card-admin">
-                <div className="task-info">
-                  <div className="task-title">{task.title}</div>
-                  <div className="task-meta-admin">
-                    <span className={`status-badge ${task.status.toLowerCase()}`}>
-                      {task.status}
-                    </span>
-                    <span className={`priority-badge ${task.priority.toLowerCase()}`}>
-                      {task.priority}
-                    </span>
+            {allTasks.length === 0 ? (
+              <div className="no-tasks">No hay tareas que coincidan con los filtros seleccionados.</div>
+            ) : (
+              allTasks.map((task) => (
+                <div key={task.id} className="task-card-admin">
+                  <div className="task-info">
+                    <div className="task-title">{task.title}</div>
+                    <div className="task-meta-admin">
+                      <span className={`status-badge ${task.status.toLowerCase()}`}>
+                        {task.status}
+                      </span>
+                      <span className={`priority-badge ${task.priority.toLowerCase()}`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                    <div className="task-user">Usuario: {task.userId}</div>
                   </div>
-                  <div className="task-user">Usuario: {task.userId}</div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       )}

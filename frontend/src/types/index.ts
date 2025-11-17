@@ -125,6 +125,7 @@ export interface AdminStatistics {
   };
   notifications: {
     total: number;
+    byUser: Array<{ userId: string; userEmail: string; count: number }>;
   };
 }
 

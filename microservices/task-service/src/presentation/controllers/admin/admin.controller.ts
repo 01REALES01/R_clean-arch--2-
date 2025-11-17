@@ -14,7 +14,7 @@ import { UserRole } from '../../../domain/entities/user.entity';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { ListTasksUseCase } from '../../../application/use-cases/task/list-tasks.use-case';
 import { DeleteTaskUseCase } from '../../../application/use-cases/task/delete-task.use-case';
-import { TaskStatus } from '../../../domain/entities/task.entity';
+import { TaskStatus, TaskPriority } from '../../../domain/entities/task.entity';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -77,10 +77,16 @@ export class AdminController {
   @ApiOperation({ summary: '[ADMIN ONLY] Get all tasks from all users' })
   @ApiResponse({ status: 200, description: 'All tasks retrieved successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
-  async getAllTasks(@Query('status') status?: TaskStatus) {
+  async getAllTasks(
+    @Query('status') status?: TaskStatus,
+    @Query('priority') priority?: TaskPriority,
+  ) {
     const where: any = {};
     if (status) {
       where.status = status;
+    }
+    if (priority) {
+      where.priority = priority;
     }
 
     const tasks = await this.prisma.task.findMany({
@@ -136,6 +142,27 @@ export class AdminController {
       _count: true,
     });
 
+    // Get notifications grouped by user
+    const notificationsByUser = await this.prisma.notification.groupBy({
+      by: ['userId'],
+      _count: true,
+    });
+
+    // Get user emails for the notifications
+    const notificationsByUserWithEmail = await Promise.all(
+      notificationsByUser.map(async (item) => {
+        const user = await this.prisma.user.findUnique({
+          where: { id: item.userId },
+          select: { email: true },
+        });
+        return {
+          userId: item.userId,
+          userEmail: user?.email || 'Unknown',
+          count: item._count,
+        };
+      }),
+    );
+
     return {
       users: {
         total: totalUsers,
@@ -152,6 +179,7 @@ export class AdminController {
       },
       notifications: {
         total: totalNotifications,
+        byUser: notificationsByUserWithEmail,
       },
     };
   }
