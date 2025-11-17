@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { TaskStatus } from '../types';
 import type { Task } from '../types';
+import KanbanBoard from '../components/KanbanBoard';
 import './Tasks.css';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
 
   useEffect(() => {
     loadTasks();
@@ -67,31 +69,49 @@ export default function Tasks() {
         </Link>
       </div>
 
-      <div className="tasks-filters">
-        <button
-          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          Todas
-        </button>
-        <button
-          className={`filter-btn ${filter === TaskStatus.PENDING ? 'active' : ''}`}
-          onClick={() => setFilter(TaskStatus.PENDING)}
-        >
-          Pendientes
-        </button>
-        <button
-          className={`filter-btn ${filter === TaskStatus.IN_PROGRESS ? 'active' : ''}`}
-          onClick={() => setFilter(TaskStatus.IN_PROGRESS)}
-        >
-          En Progreso
-        </button>
-        <button
-          className={`filter-btn ${filter === TaskStatus.COMPLETED ? 'active' : ''}`}
-          onClick={() => setFilter(TaskStatus.COMPLETED)}
-        >
-          Completadas
-        </button>
+      <div className="tasks-controls">
+        <div className="tasks-filters">
+          <button
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            Todas
+          </button>
+          <button
+            className={`filter-btn ${filter === TaskStatus.PENDING ? 'active' : ''}`}
+            onClick={() => setFilter(TaskStatus.PENDING)}
+          >
+            Pendientes
+          </button>
+          <button
+            className={`filter-btn ${filter === TaskStatus.IN_PROGRESS ? 'active' : ''}`}
+            onClick={() => setFilter(TaskStatus.IN_PROGRESS)}
+          >
+            En Progreso
+          </button>
+          <button
+            className={`filter-btn ${filter === TaskStatus.COMPLETED ? 'active' : ''}`}
+            onClick={() => setFilter(TaskStatus.COMPLETED)}
+          >
+            Completadas
+          </button>
+        </div>
+        <div className="view-toggle">
+          <button
+            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+            title="Vista Lista"
+          >
+            📋
+          </button>
+          <button
+            className={`view-btn ${viewMode === 'kanban' ? 'active' : ''}`}
+            onClick={() => setViewMode('kanban')}
+            title="Vista Kanban"
+          >
+            📊
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -103,6 +123,8 @@ export default function Tasks() {
             Crear Primera Tarea
           </Link>
         </div>
+      ) : viewMode === 'kanban' ? (
+        <KanbanBoard tasks={tasks} onTaskUpdate={loadTasks} />
       ) : (
         <div className="tasks-grid">
           {tasks.map((task) => (

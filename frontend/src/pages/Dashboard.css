@@ -64,6 +64,98 @@
   margin-top: 0.25rem;
 }
 
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  background: var(--white);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.chart-card h2 {
+  font-size: 1.25rem;
+  color: var(--gray-900);
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.progress-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.progress-circle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-progress {
+  transition: stroke-dasharray 0.5s ease;
+}
+
+.progress-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-percentage {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--gray-900);
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.progress-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.progress-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-stat-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.progress-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--gray-900);
+}
+
 .dashboard-sections {
   display: grid;
   gap: 2rem;
