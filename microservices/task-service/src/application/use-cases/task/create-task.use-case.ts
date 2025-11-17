@@ -20,6 +20,7 @@ export class CreateTaskUseCase {
     const task = Task.create({
       title: dto.title,
       description: dto.description || null,
+      status: dto.status,
       priority: dto.priority || TaskPriority.MEDIUM,
       dueDate: dto.dueDate || null,
       userId,

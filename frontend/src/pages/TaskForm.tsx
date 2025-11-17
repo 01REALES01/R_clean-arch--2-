@@ -48,10 +48,30 @@ export default function TaskForm() {
     setLoading(true);
 
     try {
+      // Preparar datos: eliminar campos vacíos
+      const dataToSend: any = {
+        title: formData.title,
+        description: formData.description || undefined,
+        status: formData.status,
+        priority: formData.priority,
+      };
+
+      // Solo incluir dueDate si tiene valor
+      if (formData.dueDate && formData.dueDate.trim() !== '') {
+        dataToSend.dueDate = formData.dueDate;
+      }
+
+      // Eliminar campos undefined
+      Object.keys(dataToSend).forEach(key => {
+        if (dataToSend[key] === undefined || dataToSend[key] === '') {
+          delete dataToSend[key];
+        }
+      });
+
       if (isEdit) {
-        await apiService.updateTask(id!, formData);
+        await apiService.updateTask(id!, dataToSend);
       } else {
-        await apiService.createTask(formData);
+        await apiService.createTask(dataToSend);
       }
       navigate('/tasks');
     } catch (err: any) {
@@ -102,20 +122,38 @@ export default function TaskForm() {
           </div>
 
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="status">Estado</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value={TaskStatus.PENDING}>Pendiente</option>
-                <option value={TaskStatus.IN_PROGRESS}>En Progreso</option>
-                <option value={TaskStatus.COMPLETED}>Completada</option>
-                <option value={TaskStatus.CANCELLED}>Cancelada</option>
-              </select>
-            </div>
+            {isEdit && (
+              <div className="form-group">
+                <label htmlFor="status">Estado</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value={TaskStatus.PENDING}>Pendiente</option>
+                  <option value={TaskStatus.IN_PROGRESS}>En Progreso</option>
+                  <option value={TaskStatus.COMPLETED}>Completada</option>
+                  <option value={TaskStatus.CANCELLED}>Cancelada</option>
+                </select>
+              </div>
+            )}
+            {!isEdit && (
+              <div className="form-group">
+                <label htmlFor="status">Estado Inicial</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value={TaskStatus.PENDING}>Pendiente</option>
+                  <option value={TaskStatus.IN_PROGRESS}>En Progreso</option>
+                  <option value={TaskStatus.COMPLETED}>Completada</option>
+                  <option value={TaskStatus.CANCELLED}>Cancelada</option>
+                </select>
+              </div>
+            )}
 
             <div className="form-group">
               <label htmlFor="priority">Prioridad</label>

@@ -7,9 +7,10 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, registerAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +30,11 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register({ email, password });
+      if (isAdmin) {
+        await registerAdmin({ email, password });
+      } else {
+        await register({ email, password });
+      }
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al registrar usuario');
@@ -84,8 +89,24 @@ export default function Register() {
             />
           </div>
 
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={isAdmin}
+                onChange={(e) => setIsAdmin(e.target.checked)}
+              />
+              <span>Registrarse como Administrador</span>
+            </label>
+            {isAdmin && (
+              <small className="admin-warning">
+                ⚠️ Los administradores tienen acceso completo al sistema
+              </small>
+            )}
+          </div>
+
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Registrando...' : 'Registrarse'}
+            {loading ? 'Registrando...' : isAdmin ? 'Registrarse como Admin' : 'Registrarse'}
           </button>
         </form>
 

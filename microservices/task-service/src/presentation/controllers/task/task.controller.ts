@@ -41,7 +41,9 @@ export class TaskController {
   async create(@Body() createTaskDto: CreateTaskDto, @Request() req: any) {
     const applicationDto = {
       ...createTaskDto,
-      dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : undefined,
+      dueDate: createTaskDto.dueDate && createTaskDto.dueDate.trim() !== '' 
+        ? new Date(createTaskDto.dueDate) 
+        : undefined,
     };
     return this.createTaskUseCase.execute(applicationDto, req.user.id);
   }

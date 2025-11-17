@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsDateString } from 'class-validator';
-import { TaskPriority } from '../../../domain/entities/task.entity';
+import { TaskPriority, TaskStatus } from '../../../domain/entities/task.entity';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTaskDto {
@@ -12,6 +12,11 @@ export class CreateTaskDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiPropertyOptional({ enum: TaskStatus, description: 'Task status' })
+  @IsEnum(TaskStatus)
+  @IsOptional()
+  status?: TaskStatus;
 
   @ApiPropertyOptional({ enum: TaskPriority, description: 'Task priority' })
   @IsEnum(TaskPriority)

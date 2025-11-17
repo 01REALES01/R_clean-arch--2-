@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   login: (credentials: LoginDto) => Promise<void>;
   register: (data: RegisterDto) => Promise<void>;
+  registerAdmin: (data: RegisterDto) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -48,6 +49,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await login({ email: data.email, password: data.password });
   };
 
+  const registerAdmin = async (data: RegisterDto) => {
+    await apiService.registerAdmin(data);
+    // Después de registrar, hacer login automático
+    await login({ email: data.email, password: data.password });
+  };
+
   const logout = () => {
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
@@ -59,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     login,
     register,
+    registerAdmin,
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
