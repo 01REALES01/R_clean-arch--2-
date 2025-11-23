@@ -1,0 +1,6 @@
+// Dependency Injection Tokens for Repositories
+
+export const USER_REPOSITORY = 'USER_REPOSITORY';
+export const TASK_REPOSITORY = 'TASK_REPOSITORY';
+export const CATEGORY_REPOSITORY = 'CATEGORY_REPOSITORY';
+export const NOTIFICATION_REPOSITORY = Symbol('NOTIFICATION_REPOSITORY');
