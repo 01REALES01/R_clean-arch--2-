@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { TaskStatus } from '../types';
 import type { Task, Category } from '../types';
+import { LayoutList, Kanban, Edit2, Trash2, Calendar } from 'lucide-react';
 import KanbanBoard from '../components/KanbanBoard';
 import TaskDetailModal from '../components/TaskDetailModal';
+import { renderCategoryIcon } from './Categories';
 import './Tasks.css';
 
 export default function Tasks() {
@@ -198,7 +200,7 @@ export default function Tasks() {
               <option value="all">Todas las categorías</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.icon} {cat.name}
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -211,14 +213,14 @@ export default function Tasks() {
             onClick={() => setViewMode('list')}
             title="Vista Lista"
           >
-            📋
+            <LayoutList size={20} />
           </button>
           <button
             className={`view-btn ${viewMode === 'kanban' ? 'active' : ''}`}
             onClick={() => setViewMode('kanban')}
             title="Vista Kanban"
           >
-            📊
+            <Kanban size={20} />
           </button>
         </div>
       </div>
@@ -252,7 +254,7 @@ export default function Tasks() {
                     title="Editar"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    ✏️
+                    <Edit2 size={16} />
                   </Link>
                   <button
                     onClick={(e) => {
@@ -262,7 +264,7 @@ export default function Tasks() {
                     className="btn-icon"
                     title="Eliminar"
                   >
-                    🗑️
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -287,7 +289,7 @@ export default function Tasks() {
                       borderColor: `${task.category.color}40`
                     }}
                   >
-                    {task.category.icon} {task.category.name}
+                    {renderCategoryIcon(task.category.icon, 14)} {task.category.name}
                   </span>
                 )}
               </div>
@@ -301,7 +303,7 @@ export default function Tasks() {
                       </span>
                       {task.dueDate && (
                         <span className="task-date">
-                          📅 {new Date(task.dueDate).toLocaleDateString('es-ES')}
+                          <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES')}
                         </span>
                       )}
                     </div>
@@ -317,7 +319,7 @@ export default function Tasks() {
                 ) : (
                   task.dueDate && (
                     <div className="task-date-only">
-                      📅 {new Date(task.dueDate).toLocaleDateString('es-ES')}
+                      <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES')}
                     </div>
                   )
                 )}

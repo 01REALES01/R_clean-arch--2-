@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react';
+import {
+    Briefcase, Home, GraduationCap, Dumbbell, ShoppingCart, Plane,
+    Gamepad2, Music, Book, Lightbulb, Star, Flame,
+    Laptop, Palette, Coins, Stethoscope, Utensils, Car,
+    Plus, Trash2, X
+} from 'lucide-react';
 import { apiService } from '../services/api';
 import { Category, CreateCategoryDto } from '../types';
 import './Categories.css';
@@ -9,11 +15,38 @@ const PRESET_COLORS = [
     '#f43f5e', '#64748b'
 ];
 
-const PRESET_ICONS = [
-    '💼', '🏠', '🎓', '💪', '🛒', '✈️',
-    '🎮', '🎵', '📚', '💡', '⭐', '🔥',
-    '💻', '🎨', '💰', '🏥', '🍽️', '🚗'
-];
+// Map of icon names to components
+const ICON_MAP: Record<string, any> = {
+    'Briefcase': Briefcase, 'Home': Home, 'GraduationCap': GraduationCap,
+    'Dumbbell': Dumbbell, 'ShoppingCart': ShoppingCart, 'Plane': Plane,
+    'Gamepad2': Gamepad2, 'Music': Music, 'Book': Book,
+    'Lightbulb': Lightbulb, 'Star': Star, 'Flame': Flame,
+    'Laptop': Laptop, 'Palette': Palette, 'Coins': Coins,
+    'Stethoscope': Stethoscope, 'Utensils': Utensils, 'Car': Car
+};
+
+const PRESET_ICONS = Object.keys(ICON_MAP);
+
+// Helper to render icon from string (handling legacy emojis)
+export const renderCategoryIcon = (iconName: string, size = 20) => {
+    // Legacy emoji mapping
+    const emojiMap: Record<string, string> = {
+        '💼': 'Briefcase', '🏠': 'Home', '🎓': 'GraduationCap', '💪': 'Dumbbell',
+        '🛒': 'ShoppingCart', '✈️': 'Plane', '🎮': 'Gamepad2', '🎵': 'Music',
+        '📚': 'Book', '💡': 'Lightbulb', '⭐': 'Star', '🔥': 'Flame',
+        '💻': 'Laptop', '🎨': 'Palette', '💰': 'Coins', '🏥': 'Stethoscope',
+        '🍽️': 'Utensils', '🚗': 'Car'
+    };
+
+    const mappedName = emojiMap[iconName] || iconName;
+    const IconComponent = ICON_MAP[mappedName];
+
+    if (IconComponent) {
+        return <IconComponent size={size} />;
+    }
+    // Fallback for unmapped emojis or text
+    return <span>{iconName}</span>;
+};
 
 export default function Categories() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -72,7 +105,7 @@ export default function Categories() {
             <div className="categories-header">
                 <h1>Categorías</h1>
                 <button className="btn-add-category" onClick={() => setIsModalOpen(true)}>
-                    <span>+</span> Nueva Categoría
+                    <Plus size={18} /> Nueva Categoría
                 </button>
             </div>
 
@@ -90,14 +123,14 @@ export default function Categories() {
                                 onClick={() => handleDelete(category.id)}
                                 title="Eliminar"
                             >
-                                🗑️
+                                <Trash2 size={16} />
                             </button>
                         </div>
                         <div
                             className="category-icon-wrapper"
                             style={{ backgroundColor: `${category.color}20`, color: category.color }}
                         >
-                            {category.icon}
+                            {renderCategoryIcon(category.icon, 24)}
                         </div>
                         <div className="category-info">
                             <h3>{category.name}</h3>
@@ -115,7 +148,7 @@ export default function Categories() {
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <h2>Nueva Categoría</h2>
-                            <button className="btn-close" onClick={() => setIsModalOpen(false)}>×</button>
+                            <button className="btn-close" onClick={() => setIsModalOpen(false)}><X size={20} /></button>
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
@@ -154,7 +187,7 @@ export default function Categories() {
                                             className={`emoji-option ${newCategory.icon === icon ? 'selected' : ''}`}
                                             onClick={() => setNewCategory({ ...newCategory, icon })}
                                         >
-                                            {icon}
+                                            {renderCategoryIcon(icon, 20)}
                                         </div>
                                     ))}
                                 </div>

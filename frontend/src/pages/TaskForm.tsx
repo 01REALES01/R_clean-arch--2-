@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Sparkles, X, Plus } from 'lucide-react';
 import { apiService } from '../services/api';
 import { TaskStatus, TaskPriority, Category } from '../types';
 import type { CreateTaskDto, UpdateTaskDto } from '../types';
@@ -162,7 +163,7 @@ export default function TaskForm() {
               className="btn-magic"
               onClick={() => setIsAiModalOpen(true)}
             >
-              ✨ Magic Task
+              <Sparkles size={16} /> Magic Task
             </button>
           )}
         </div>
@@ -207,7 +208,7 @@ export default function TaskForm() {
                 <option value="">Sin categoría</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.icon} {cat.name}
+                    {cat.name}
                   </option>
                 ))}
               </select>
@@ -272,12 +273,12 @@ export default function TaskForm() {
                   className="btn-remove-subtask"
                   onClick={() => removeSubtask(index)}
                 >
-                  ×
+                  <X size={16} />
                 </button>
               </div>
             ))}
             <button type="button" className="btn-add-subtask" onClick={addSubtask}>
-              + Añadir Subtarea
+              <Plus size={16} /> Añadir Subtarea
             </button>
           </div>
 
@@ -300,8 +301,8 @@ export default function TaskForm() {
           <div className="modal-overlay" onClick={() => setIsAiModalOpen(false)}>
             <div className="modal-content ai-modal" onClick={e => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>✨ Magic Task Assistant</h2>
-                <button className="btn-close" onClick={() => setIsAiModalOpen(false)}>×</button>
+                <h2><Sparkles size={20} className="text-yellow-400" /> Magic Task Assistant</h2>
+                <button className="btn-close" onClick={() => setIsAiModalOpen(false)}><X size={20} /></button>
               </div>
               <div className="ai-modal-body">
                 <p>Describe tu tarea y la IA completará los detalles por ti.</p>
@@ -322,7 +323,7 @@ export default function TaskForm() {
                   onClick={handleAiGenerate}
                   disabled={aiLoading || !aiPrompt.trim()}
                 >
-                  {aiLoading ? 'Generando...' : '✨ Generar Tarea'}
+                  {aiLoading ? 'Generando...' : <><Sparkles size={16} /> Generar Tarea</>}
                 </button>
               </div>
             </div>

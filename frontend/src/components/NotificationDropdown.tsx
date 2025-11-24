@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Bell, Check, X, Trash2, Sparkles, FileEdit, Clock, AlertTriangle, BellOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { NotificationStatus } from '../types';
@@ -75,17 +76,17 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'TASK_CREATED':
-        return '✨';
+        return <Sparkles size={20} className="text-yellow-400" />;
       case 'TASK_UPDATED':
-        return '📝';
+        return <FileEdit size={20} className="text-blue-400" />;
       case 'TASK_DELETED':
-        return '🗑️';
+        return <Trash2 size={20} className="text-red-400" />;
       case 'TASK_DUE_SOON':
-        return '⏰';
+        return <Clock size={20} className="text-orange-400" />;
       case 'TASK_OVERDUE':
-        return '⚠️';
+        return <AlertTriangle size={20} className="text-red-500" />;
       default:
-        return '🔔';
+        return <Bell size={20} />;
     }
   };
 
@@ -104,10 +105,10 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                 className="btn-mark-all-read"
                 title="Marcar todas como leídas"
               >
-                ✓ Marcar todas
+                <Check size={16} /> Marcar todas
               </button>
             )}
-            <button onClick={onClose} className="close-btn">×</button>
+            <button onClick={onClose} className="close-btn"><X size={20} /></button>
           </div>
         </div>
 
@@ -116,6 +117,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
             <div className="notification-loading">Cargando...</div>
           ) : notifications.length === 0 ? (
             <div className="notification-empty">
+              <BellOff size={48} style={{ opacity: 0.5 }} />
               <p>No hay notificaciones</p>
             </div>
           ) : (
@@ -148,7 +150,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                         className="btn-mark-read"
                         title="Marcar como leída"
                       >
-                        ✓
+                        <Check size={16} />
                       </button>
                     )}
                     <button
@@ -156,7 +158,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
                       className="btn-delete-notification"
                       title="Eliminar"
                     >
-                      ×
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

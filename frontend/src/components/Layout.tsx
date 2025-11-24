@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Bell, LogOut, LayoutDashboard, ListTodo, Tags, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NotificationBadge from './NotificationBadge';
 import NotificationDropdown from './NotificationDropdown';
@@ -17,33 +18,34 @@ export default function Layout() {
       <nav className="navbar">
         <div className="nav-container">
           <Link to="/dashboard" className="nav-brand">
-            📋 TaskFlow
+            <img src="/logo.png" alt="TaskFlow" className="nav-logo" />
+            <span>TaskFlow</span>
           </Link>
           <div className="nav-links">
             <Link
               to="/dashboard"
               className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
             >
-              Dashboard
+              <LayoutDashboard size={18} /> Dashboard
             </Link>
             <Link
               to="/tasks"
               className={`nav-link ${isActive('/tasks') ? 'active' : ''}`}
             >
-              Tareas
+              <ListTodo size={18} /> Tareas
             </Link>
             <Link
               to="/categories"
               className={`nav-link ${isActive('/categories') ? 'active' : ''}`}
             >
-              Categorías
+              <Tags size={18} /> Categorías
             </Link>
             {isAdmin && (
               <Link
                 to="/admin"
                 className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
               >
-                Admin
+                <Shield size={18} /> Admin
               </Link>
             )}
           </div>
@@ -58,7 +60,7 @@ export default function Layout() {
                 className="btn-notification-icon"
                 title="Notificaciones"
               >
-                🔔
+                <Bell size={20} />
                 <NotificationBadge />
               </button>
               <NotificationDropdown
@@ -67,7 +69,7 @@ export default function Layout() {
               />
             </div>
             <button onClick={logout} className="btn-logout" title="Cerrar Sesión">
-              <span style={{ fontSize: '1.2rem' }}>🚪</span>
+              <LogOut size={18} />
             </button>
           </div>
         </div>

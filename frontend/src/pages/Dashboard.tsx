@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { BarChart3, PieChart as PieChartIcon, ListTodo } from 'lucide-react';
+import { BarChart3, PieChart as PieChartIcon, ListTodo, ClipboardList, Clock, Activity, CheckCircle2 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { TaskStatus, TaskPriority } from '../types';
 import type { Task } from '../types';
@@ -148,7 +148,7 @@ export default function Dashboard() {
 
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">📋</div>
+          <div className="stat-icon"><ClipboardList size={24} /></div>
           <div className="stat-content">
             <div className="stat-value">{stats.total}</div>
             <div className="stat-label">Total Tareas</div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
         </div>
 
         <div className="stat-card pending">
-          <div className="stat-icon">⏳</div>
+          <div className="stat-icon"><Clock size={24} /></div>
           <div className="stat-content">
             <div className="stat-value">{stats.pending}</div>
             <div className="stat-label">Pendientes</div>
@@ -164,7 +164,7 @@ export default function Dashboard() {
         </div>
 
         <div className="stat-card in-progress">
-          <div className="stat-icon">🔄</div>
+          <div className="stat-icon"><Activity size={24} /></div>
           <div className="stat-content">
             <div className="stat-value">{stats.inProgress}</div>
             <div className="stat-label">En Progreso</div>
@@ -172,7 +172,7 @@ export default function Dashboard() {
         </div>
 
         <div className="stat-card completed">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"><CheckCircle2 size={24} /></div>
           <div className="stat-content">
             <div className="stat-value">{stats.completed}</div>
             <div className="stat-label">Completadas</div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Calendar, Flag, CheckCircle, Edit, Trash2 } from 'lucide-react';
 import { Task, TaskStatus, TaskPriority } from '../types';
+import { renderCategoryIcon } from '../pages/Categories';
 import './TaskDetailModal.css';
 
 interface TaskDetailModalProps {
@@ -92,7 +93,7 @@ export default function TaskDetailModal({
                                         border: '1px solid'
                                     }}
                                 >
-                                    {task.category.icon} {task.category.name}
+                                    {renderCategoryIcon(task.category.icon, 16)} {task.category.name}
                                 </span>
                             </div>
                         )}
