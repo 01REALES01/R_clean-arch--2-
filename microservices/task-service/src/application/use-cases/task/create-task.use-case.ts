@@ -5,6 +5,7 @@ import { CreateTaskDto } from '../../dto/task/create-task.dto';
 import { EventPublisher, EVENT_PUBLISHER } from '../../ports/event-publisher.port';
 import { TaskCreatedEvent } from '../../../domain/events/task.events';
 import { TASK_REPOSITORY } from '../../tokens/repository.tokens';
+import { RedisService } from '../../../infrastructure/cache/redis.service';
 
 @Injectable()
 export class CreateTaskUseCase {
@@ -13,6 +14,7 @@ export class CreateTaskUseCase {
     private readonly taskRepository: TaskRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly eventPublisher: EventPublisher,
+    private readonly redisService: RedisService,
   ) { }
 
   async execute(dto: CreateTaskDto, userId: string): Promise<Task> {
@@ -36,6 +38,9 @@ export class CreateTaskUseCase {
 
     // Save to repository
     const createdTask = await this.taskRepository.create(task);
+
+    // Invalidate cache
+    await this.redisService.delPattern(`tasks:${userId}:*`);
 
     // Publish event
     const event: TaskCreatedEvent = {

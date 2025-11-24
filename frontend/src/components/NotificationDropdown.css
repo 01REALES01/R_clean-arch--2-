@@ -4,16 +4,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 999;
   animation: fadeIn 0.2s ease-out;
 }
 
 .notification-dropdown {
-  position: absolute;
-  top: calc(100% + 0.75rem);
-  right: -0.5rem;
+  position: fixed;
+  top: 4.5rem;
+  right: 2rem;
   width: 420px;
   max-height: 650px;
   background: var(--bg-surface);
@@ -271,7 +272,8 @@
 @media (max-width: 768px) {
   .notification-dropdown {
     width: calc(100vw - 2rem);
-    right: -4rem;
+    right: 1rem;
+    left: 1rem;
     max-height: 80vh;
   }
 }

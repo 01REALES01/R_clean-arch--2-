@@ -4,10 +4,13 @@ import { EventPublisher } from '../../ports/event-publisher.port';
 import { Task, TaskStatus, TaskPriority } from '../../../domain/entities/task.entity';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
+import { RedisService } from '../../../infrastructure/cache/redis.service';
+
 describe('DeleteTaskUseCase', () => {
   let useCase: DeleteTaskUseCase;
   let mockTaskRepository: jest.Mocked<TaskRepository>;
   let mockEventPublisher: jest.Mocked<EventPublisher>;
+  let mockRedisService: jest.Mocked<RedisService>;
 
   beforeEach(() => {
     mockTaskRepository = {
@@ -22,7 +25,11 @@ describe('DeleteTaskUseCase', () => {
       publish: jest.fn(),
     } as any;
 
-    useCase = new DeleteTaskUseCase(mockTaskRepository, mockEventPublisher);
+    mockRedisService = {
+      delPattern: jest.fn(),
+    } as any;
+
+    useCase = new DeleteTaskUseCase(mockTaskRepository, mockEventPublisher, mockRedisService);
   });
 
   afterEach(() => {

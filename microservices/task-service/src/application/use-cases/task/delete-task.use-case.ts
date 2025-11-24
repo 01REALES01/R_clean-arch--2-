@@ -3,6 +3,7 @@ import { TaskRepository } from '../../../domain/repositories/task.repository';
 import { EventPublisher, EVENT_PUBLISHER } from '../../ports/event-publisher.port';
 import { TaskDeletedEvent } from '../../../domain/events/task.events';
 import { TASK_REPOSITORY } from '../../tokens/repository.tokens';
+import { RedisService } from '../../../infrastructure/cache/redis.service';
 
 @Injectable()
 export class DeleteTaskUseCase {
@@ -11,7 +12,8 @@ export class DeleteTaskUseCase {
     private readonly taskRepository: TaskRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly eventPublisher: EventPublisher,
-  ) {}
+    private readonly redisService: RedisService,
+  ) { }
 
   async execute(taskId: string, userId: string): Promise<void> {
     // Find the task
@@ -28,6 +30,9 @@ export class DeleteTaskUseCase {
 
     // Delete the task
     await this.taskRepository.delete(taskId);
+
+    // Invalidate cache
+    await this.redisService.delPattern(`tasks:${userId}:*`);
 
     // Publish event
     const event: TaskDeletedEvent = {

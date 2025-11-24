@@ -49,6 +49,8 @@ services:
       DATABASE_URL: postgresql://postgres:password@db:5432/taskflow
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       OPENAI_API_KEY: xxxxx
     ports:
       - "3000:3000"
@@ -56,6 +58,8 @@ services:
       db:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - taskflow-network
@@ -65,6 +69,20 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  redis:
+    image: redis:alpine
+    container_name: taskflow_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskflow-network
 
   notification-service:
     build:

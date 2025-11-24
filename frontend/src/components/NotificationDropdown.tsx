@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { NotificationStatus } from '../types';
@@ -90,7 +91,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       <div className="notification-overlay" onClick={onClose} />
       <div className="notification-dropdown">
@@ -172,7 +173,8 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
           </div>
         )}
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 

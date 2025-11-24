@@ -5,12 +5,14 @@ import { TaskModule } from './presentation/module/task.module';
 import { CategoryModule } from './presentation/module/category.module';
 import { AiModule } from './presentation/module/ai.module';
 import { MessagingModule } from './infrastructure/messaging/messaging.module';
+import { RedisModule } from './infrastructure/cache/redis.module';
 import { HealthController } from './presentation/controllers/health/health.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MessagingModule, // For publishing events
+    RedisModule,
     AuthModule,
     TaskModule,
     CategoryModule,

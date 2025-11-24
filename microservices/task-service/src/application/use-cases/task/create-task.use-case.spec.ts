@@ -3,10 +3,13 @@ import { TaskRepository } from '../../../domain/repositories/task.repository';
 import { EventPublisher } from '../../ports/event-publisher.port';
 import { Task, TaskStatus, TaskPriority } from '../../../domain/entities/task.entity';
 
+import { RedisService } from '../../../infrastructure/cache/redis.service';
+
 describe('CreateTaskUseCase', () => {
   let useCase: CreateTaskUseCase;
   let mockTaskRepository: jest.Mocked<TaskRepository>;
   let mockEventPublisher: jest.Mocked<EventPublisher>;
+  let mockRedisService: jest.Mocked<RedisService>;
 
   beforeEach(() => {
     // Create mocks
@@ -22,8 +25,12 @@ describe('CreateTaskUseCase', () => {
       publish: jest.fn(),
     } as any;
 
+    mockRedisService = {
+      delPattern: jest.fn(),
+    } as any;
+
     // Create use case with mocks
-    useCase = new CreateTaskUseCase(mockTaskRepository, mockEventPublisher);
+    useCase = new CreateTaskUseCase(mockTaskRepository, mockEventPublisher, mockRedisService);
   });
 
   afterEach(() => {
