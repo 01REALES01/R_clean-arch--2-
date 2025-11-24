@@ -111,13 +111,25 @@ export default function Dashboard() {
       default:
         return status;
     }
-  };
+  }
 
   if (loading) {
     return <div className="loading">Cargando...</div>;
   }
 
-  const recentTasks = tasks.slice(0, 5);
+  // Filter tasks created today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const recentTasks = tasks
+    .filter(task => {
+      if (!task.createdAt) return false;
+      const taskDate = new Date(task.createdAt);
+      taskDate.setHours(0, 0, 0, 0);
+      return taskDate.getTime() === today.getTime();
+    })
+    .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+    .slice(0, 5);
 
   return (
     <div className="dashboard">

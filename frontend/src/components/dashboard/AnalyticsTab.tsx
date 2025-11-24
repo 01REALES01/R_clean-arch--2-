@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Task, TaskPriority, TaskStatus } from '../../types';
 import { eachDayOfInterval, format, subDays, isWithinInterval, parseISO } from 'date-fns';
+import '../../pages/DashboardCharts.css';
 
 interface AnalyticsTabProps {
     tasks: Task[];

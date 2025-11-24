@@ -1,0 +1,192 @@
+.week-calendar-widget {
+    background: var(--bg-glass, rgba(30, 41, 59, 0.7));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.week-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.week-calendar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary, #f8fafc);
+}
+
+.week-calendar-title h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.week-calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.week-range {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #cbd5e1);
+    font-weight: 500;
+    min-width: 120px;
+    text-align: center;
+}
+
+.week-nav-btn {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: var(--primary-light, #a78bfa);
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.week-nav-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    transform: scale(1.1);
+}
+
+.week-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.week-day {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.week-day:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.week-day.today {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--primary-light, #a78bfa);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.week-day-header {
+    text-align: center;
+    width: 100%;
+}
+
+.week-day-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #cbd5e1);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.week-day-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #f8fafc);
+    margin-top: 0.25rem;
+}
+
+.week-day.today .week-day-number {
+    color: var(--primary-light, #a78bfa);
+}
+
+.week-day-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    align-items: center;
+}
+
+.week-task-indicator {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.week-task-indicator:hover {
+    transform: scaleY(1.5);
+    box-shadow: 0 0 8px currentColor;
+}
+
+.week-task-more {
+    font-size: 0.7rem;
+    color: var(--text-tertiary, #94a3b8);
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.week-no-tasks {
+    font-size: 0.875rem;
+    color: var(--text-tertiary, #94a3b8);
+    opacity: 0.5;
+}
+
+.week-calendar-link {
+    display: block;
+    text-align: center;
+    color: var(--primary-light, #a78bfa);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.week-calendar-link:hover {
+    background: rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.week-calendar-loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #cbd5e1);
+}
+
+@media (max-width: 768px) {
+    .week-calendar-grid {
+        gap: 0.25rem;
+    }
+
+    .week-day {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .week-day-name {
+        font-size: 0.65rem;
+    }
+
+    .week-day-number {
+        font-size: 1rem;
+    }
+}
