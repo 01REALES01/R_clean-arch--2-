@@ -213,19 +213,6 @@
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.chart-card h2 {
-  font-size: 1.25rem;
-  color: var(--text-primary, #f8fafc);
   margin: 0 0 2rem 0;
   text-align: center;
   font-weight: 600;

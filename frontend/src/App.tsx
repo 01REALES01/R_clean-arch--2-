@@ -7,6 +7,7 @@ import Tasks from './pages/Tasks';
 import Categories from './pages/Categories';
 import TaskForm from './pages/TaskForm';
 import Notifications from './pages/Notifications';
+import Calendar from './pages/Calendar';
 import Admin from './pages/Admin';
 import Layout from './components/Layout';
 
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="tasks/new" element={<TaskForm />} />
         <Route path="tasks/:id/edit" element={<TaskForm />} />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="calendar" element={<Calendar />} />
         <Route
           path="admin"
           element={

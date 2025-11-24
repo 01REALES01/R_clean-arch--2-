@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Bell, LogOut, LayoutDashboard, ListTodo, Tags, Shield } from 'lucide-react';
+import { Bell, LogOut, LayoutDashboard, ListTodo, Tags, Shield, CalendarDays } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NotificationBadge from './NotificationBadge';
 import NotificationDropdown from './NotificationDropdown';
@@ -39,6 +39,12 @@ export default function Layout() {
               className={`nav-link ${isActive('/categories') ? 'active' : ''}`}
             >
               <Tags size={18} /> Categorías
+            </Link>
+            <Link
+              to="/calendar"
+              className={`nav-link ${isActive('/calendar') ? 'active' : ''}`}
+            >
+              <CalendarDays size={18} /> Calendario
             </Link>
             {isAdmin && (
               <Link
