@@ -51,12 +51,22 @@ export default function TaskForm() {
   const loadTask = async () => {
     try {
       const task = await apiService.getTask(id!);
+
+      // Convert UTC date to local datetime-local format
+      let localDueDate = '';
+      if (task.dueDate) {
+        const date = new Date(task.dueDate);
+        // Adjust for timezone offset to get local time string
+        const offset = date.getTimezoneOffset() * 60000;
+        localDueDate = new Date(date.getTime() - offset).toISOString().slice(0, 16);
+      }
+
       setFormData({
         title: task.title,
         description: task.description || '',
         status: task.status,
         priority: task.priority,
-        dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
+        dueDate: localDueDate,
         categoryId: task.categoryId || '',
       });
       // If task has subtasks, load them (assuming backend returns them)
@@ -81,6 +91,8 @@ export default function TaskForm() {
         title: generatedTask.title,
         description: generatedTask.description,
         priority: generatedTask.priority || TaskPriority.MEDIUM,
+        // Handle AI-generated due date
+        dueDate: generatedTask.dueDate ? new Date(generatedTask.dueDate).toISOString().slice(0, 16) : '',
         // Try to match category by name if possible, otherwise leave empty
         categoryId: categories.find(c => c.name.toLowerCase() === generatedTask.suggestedCategory?.toLowerCase())?.id || '',
       }));
@@ -115,7 +127,9 @@ export default function TaskForm() {
       };
 
       if (formData.dueDate && formData.dueDate.trim() !== '') {
-        dataToSend.dueDate = formData.dueDate;
+        // formData.dueDate is "YYYY-MM-DDTHH:mm" (Local)
+        // new Date(formData.dueDate).toISOString() converts it to UTC correctly
+        dataToSend.dueDate = new Date(formData.dueDate).toISOString();
       }
 
       if (isEdit) {
@@ -247,11 +261,11 @@ export default function TaskForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="dueDate">Fecha Límite</label>
+              <label htmlFor="dueDate">Fecha y Hora Límite</label>
               <input
                 id="dueDate"
                 name="dueDate"
-                type="date"
+                type="datetime-local"
                 value={formData.dueDate}
                 onChange={handleChange}
               />

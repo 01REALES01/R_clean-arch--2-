@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { TaskStatus } from '../types';
 import type { Task, Category } from '../types';
-import { LayoutList, Kanban, Edit2, Trash2, Calendar } from 'lucide-react';
+import { LayoutList, Kanban, Edit2, Trash2, Calendar, ListChecks } from 'lucide-react';
 import KanbanBoard from '../components/KanbanBoard';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { renderCategoryIcon } from './Categories';
+import ConfirmModal from '../components/ConfirmModal';
 import './Tasks.css';
 
 export default function Tasks() {
@@ -16,8 +17,9 @@ export default function Tasks() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
 
   useEffect(() => {
     loadCategories();
@@ -50,11 +52,22 @@ export default function Tasks() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirm({ open: true, id });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.id) return;
 
     try {
-      await apiService.deleteTask(id);
+      await apiService.deleteTask(deleteConfirm.id);
+
+      // If the deleted task was selected/open in modal, close it
+      if (selectedTask && selectedTask.id === deleteConfirm.id) {
+        setSelectedTask(null);
+      }
+
+      setDeleteConfirm({ open: false, id: null });
       loadTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -80,16 +93,8 @@ export default function Tasks() {
     navigate(`/tasks/${taskId}/edit`);
   };
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
-    try {
-      await apiService.deleteTask(taskId);
-      setSelectedTask(null);
-      loadTasks();
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      alert('Error al eliminar la tarea');
-    }
+  const handleDeleteTask = (taskId: string) => {
+    setDeleteConfirm({ open: true, id: taskId });
   };
 
   const handleToggleComplete = async (taskId: string, currentStatus: TaskStatus) => {
@@ -105,13 +110,53 @@ export default function Tasks() {
   };
 
   const handleToggleSubtask = async (taskId: string, subtaskId: string) => {
+    // Optimistic update
+    const updateTaskState = (taskList: Task[]) => {
+      return taskList.map(t => {
+        if (t.id === taskId) {
+          const updatedSubtasks = t.subtasks?.map(s => {
+            if (s.id === subtaskId) {
+              return { ...s, completed: !s.completed };
+            }
+            return s;
+          });
+          return { ...t, subtasks: updatedSubtasks };
+        }
+        return t;
+      });
+    };
+
+    // Update local state immediately
+    setTasks(prevTasks => updateTaskState(prevTasks));
+
+    if (selectedTask && selectedTask.id === taskId) {
+      setSelectedTask(prev => {
+        if (!prev) return null;
+        const updatedSubtasks = prev.subtasks?.map(s => {
+          if (s.id === subtaskId) {
+            return { ...s, completed: !s.completed };
+          }
+          return s;
+        });
+        return { ...prev, subtasks: updatedSubtasks };
+      });
+    }
+
     try {
       await apiService.toggleSubtask(taskId, subtaskId);
+      // No need to reload tasks if optimistic update was successful
+      // But we can fetch the specific task silently to ensure consistency
       const updatedTask = await apiService.getTask(taskId);
-      setSelectedTask(updatedTask);
-      loadTasks();
+
+      // Update state with confirmed data from server
+      setTasks(prevTasks => prevTasks.map(t => t.id === taskId ? updatedTask : t));
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask(updatedTask);
+      }
     } catch (error) {
       console.error('Error toggling subtask:', error);
+      // Revert on error (reload all tasks)
+      loadTasks();
     }
   };
 
@@ -152,7 +197,7 @@ export default function Tasks() {
   return (
     <div className="tasks-page">
       <div className="tasks-header">
-        <h1>Mis Tareas</h1>
+        <h1><ListChecks size={32} className="inline mr-2" />Mis Tareas</h1>
         <Link to="/tasks/new" className="btn-primary">
           + Nueva Tarea
         </Link>
@@ -259,7 +304,7 @@ export default function Tasks() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(task.id);
+                      handleDeleteClick(task.id);
                     }}
                     className="btn-icon"
                     title="Eliminar"
@@ -303,7 +348,7 @@ export default function Tasks() {
                       </span>
                       {task.dueDate && (
                         <span className="task-date">
-                          <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES')}
+                          <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>
@@ -319,7 +364,7 @@ export default function Tasks() {
                 ) : (
                   task.dueDate && (
                     <div className="task-date-only">
-                      <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES')}
+                      <Calendar size={14} className="inline mr-1" /> {new Date(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </div>
                   )
                 )}
@@ -331,21 +376,34 @@ export default function Tasks() {
                 </small>
               </div>
             </div>
-          ))}
-        </div>
+          ))
+          }
+        </div >
       )}
 
-      {selectedTask && (
-        <TaskDetailModal
-          task={selectedTask}
-          onClose={handleCloseModal}
-          onEdit={handleEditTask}
-          onDelete={handleDeleteTask}
-          onToggleComplete={handleToggleComplete}
-          onToggleSubtask={handleToggleSubtask}
-        />
-      )}
-    </div>
+      {
+        selectedTask && (
+          <TaskDetailModal
+            task={selectedTask}
+            onClose={handleCloseModal}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
+            onToggleComplete={handleToggleComplete}
+            onToggleSubtask={handleToggleSubtask}
+          />
+        )
+      }
+
+      <ConfirmModal
+        isOpen={deleteConfirm.open}
+        title="Eliminar Tarea"
+        message="¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+        confirmText="Eliminar"
+        danger
+      />
+    </div >
   );
 }
 

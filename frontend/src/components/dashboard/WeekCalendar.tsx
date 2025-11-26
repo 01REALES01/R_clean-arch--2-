@@ -95,7 +95,7 @@ export default function WeekCalendar({ onTaskClick }: WeekCalendarProps) {
                                                 key={i}
                                                 className="week-task-indicator"
                                                 style={{ backgroundColor: task.category?.color || '#8b5cf6' }}
-                                                title={task.title}
+                                                title={`${task.title} - ${task.dueDate ? new Date(task.dueDate).toLocaleDateString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}`}
                                                 onClick={() => onTaskClick?.(task)}
                                             />
                                         ))}

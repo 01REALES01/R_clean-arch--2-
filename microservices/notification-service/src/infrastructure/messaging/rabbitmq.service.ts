@@ -24,7 +24,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
   private async connect(): Promise<void> {
     try {
-      this.connection = await amqp.connect(this.url);
+      this.connection = await amqp.connect(this.url, {
+        socketOptions: {
+          family: 4 // Force IPv4
+        }
+      });
       this.channel = await this.connection.createChannel();
       console.log('✅ RabbitMQ connected successfully');
     } catch (error) {
@@ -33,7 +37,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       console.log('⚠️  App will continue without RabbitMQ messaging');
     }
   }
-  
+
   private async ensureConnection(): Promise<void> {
     if (this.connectionPromise) {
       await this.connectionPromise;
@@ -62,11 +66,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         Buffer.from(JSON.stringify(message)),
         { persistent: true }
       );
-      
+
       if (sent) {
         console.log(`📤 Message published to queue: ${queue}`);
       }
-      
+
       return sent;
     } catch (error) {
       console.error(`❌ Failed to publish message to queue ${queue}:`, error.message);
@@ -78,15 +82,15 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.ensureConnection();
       await this.channel.assertQueue(queue, { durable: true });
-      
+
       this.channel.consume(queue, async (msg) => {
         if (msg) {
           try {
             const content = JSON.parse(msg.content.toString());
             console.log(`📥 Message received from queue: ${queue}`);
-            
+
             await callback(content);
-            
+
             this.channel.ack(msg);
           } catch (error) {
             console.error(`❌ Error processing message:`, error.message);
@@ -94,7 +98,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
           }
         }
       });
-      
+
       console.log(`👂 Listening to queue: ${queue}`);
     } catch (error) {
       console.error(`❌ Failed to consume from queue ${queue}:`, error.message);

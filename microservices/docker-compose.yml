@@ -30,10 +30,11 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
-      interval: 10s
-      timeout: 5s
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 20s
+      timeout: 10s
       retries: 5
+      start_period: 40s
     networks:
       - taskflow-network
 
@@ -47,11 +48,11 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://postgres:password@db:5432/taskflow
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_SECRET: ${JWT_SECRET}
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      OPENAI_API_KEY: xxxxx
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -94,7 +95,7 @@ services:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://postgres:password@db:5432/taskflow
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_SECRET: ${JWT_SECRET}
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
       # Email configuration (optional - update with your SMTP details)
       SMTP_HOST: smtp.mailtrap.io

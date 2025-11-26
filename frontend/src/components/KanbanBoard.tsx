@@ -113,6 +113,8 @@ function KanbanCard({ task, isOverlay = false }: { task: Task; isOverlay?: boole
                 {new Date(task.dueDate).toLocaleDateString('es-ES', {
                   day: 'numeric',
                   month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit'
                 })}
               </span>
             </div>

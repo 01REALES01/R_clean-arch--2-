@@ -24,6 +24,7 @@ import { apiService } from '../services/api';
 import { Task, TaskStatus } from '../types';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { renderCategoryIcon } from './Categories';
+import ConfirmModal from '../components/ConfirmModal';
 import './Calendar.css';
 import './CalendarViews.css';
 
@@ -34,9 +35,10 @@ export default function Calendar() {
     const [view, setView] = useState<CalendarView>('week'); // Default to week view
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
 
     useEffect(() => {
         loadTasks();
@@ -83,11 +85,17 @@ export default function Calendar() {
         navigate(`/tasks/${taskId}/edit`);
     };
 
-    const handleDeleteTask = async (taskId: string) => {
-        if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+    const handleDeleteTask = (taskId: string) => {
+        setDeleteConfirm({ open: true, id: taskId });
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteConfirm.id) return;
+
         try {
-            await apiService.deleteTask(taskId);
+            await apiService.deleteTask(deleteConfirm.id);
             setSelectedTask(null);
+            setDeleteConfirm({ open: false, id: null });
             loadTasks();
         } catch (error) {
             console.error('Error deleting task:', error);
@@ -108,13 +116,49 @@ export default function Calendar() {
     };
 
     const handleToggleSubtask = async (taskId: string, subtaskId: string) => {
+        // Optimistic update
+        const updateTaskState = (taskList: Task[]) => {
+            return taskList.map(t => {
+                if (t.id === taskId) {
+                    const updatedSubtasks = t.subtasks?.map(s => {
+                        if (s.id === subtaskId) {
+                            return { ...s, completed: !s.completed };
+                        }
+                        return s;
+                    });
+                    return { ...t, subtasks: updatedSubtasks };
+                }
+                return t;
+            });
+        };
+
+        // Update local state immediately
+        setTasks(prevTasks => updateTaskState(prevTasks));
+
+        if (selectedTask && selectedTask.id === taskId) {
+            setSelectedTask(prev => {
+                if (!prev) return null;
+                const updatedSubtasks = prev.subtasks?.map(s => {
+                    if (s.id === subtaskId) {
+                        return { ...s, completed: !s.completed };
+                    }
+                    return s;
+                });
+                return { ...prev, subtasks: updatedSubtasks };
+            });
+        }
+
         try {
             await apiService.toggleSubtask(taskId, subtaskId);
             const updatedTask = await apiService.getTask(taskId);
-            setSelectedTask(updatedTask);
-            loadTasks();
+
+            setTasks(prevTasks => prevTasks.map(t => t.id === taskId ? updatedTask : t));
+            if (selectedTask && selectedTask.id === taskId) {
+                setSelectedTask(updatedTask);
+            }
         } catch (error) {
             console.error('Error toggling subtask:', error);
+            loadTasks();
         }
     };
 
@@ -423,6 +467,16 @@ export default function Calendar() {
                     onToggleSubtask={handleToggleSubtask}
                 />
             )}
+
+            <ConfirmModal
+                isOpen={deleteConfirm.open}
+                title="Eliminar Tarea"
+                message="¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteConfirm({ open: false, id: null })}
+                confirmText="Eliminar"
+                danger
+            />
         </div>
     );
 }

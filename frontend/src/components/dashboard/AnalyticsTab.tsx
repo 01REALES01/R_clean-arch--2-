@@ -1,34 +1,17 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { Task, TaskPriority, TaskStatus } from '../../types';
-import { eachDayOfInterval, format, subDays, isWithinInterval, parseISO } from 'date-fns';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { Task, TaskStatus } from '../../types';
+import { eachDayOfInterval, format, subDays, isWithinInterval, parseISO, subMonths, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { es } from 'date-fns/locale';
 import '../../pages/DashboardCharts.css';
+import './TasksAtRisk.css';
+import './CalendarHeatmap.css';
+import TasksAtRiskWidget from './TasksAtRiskWidget';
 
 interface AnalyticsTabProps {
     tasks: Task[];
-    stats: {
-        pending: number;
-        inProgress: number;
-        completed: number;
-        total: number;
-    };
 }
 
-export default function AnalyticsTab({ tasks, stats }: AnalyticsTabProps) {
-    // Status chart data
-    const statusChartData = [
-        { name: 'Pendientes', value: stats.pending, color: '#f59e0b' },
-        { name: 'En Progreso', value: stats.inProgress, color: '#3b82f6' },
-        { name: 'Completadas', value: stats.completed, color: '#10b981' },
-    ];
-
-    // Priority chart data
-    const priorityChartData = [
-        { name: 'Baja', value: tasks.filter((t) => t.priority === TaskPriority.LOW).length },
-        { name: 'Media', value: tasks.filter((t) => t.priority === TaskPriority.MEDIUM).length },
-        { name: 'Alta', value: tasks.filter((t) => t.priority === TaskPriority.HIGH).length },
-        { name: 'Urgente', value: tasks.filter((t) => t.priority === TaskPriority.URGENT).length },
-    ];
-
+export default function AnalyticsTab({ tasks }: AnalyticsTabProps) {
     // Category chart data
     const categoryChartData = Object.values(tasks.reduce((acc: any, task) => {
         const catName = task.category?.name || 'Sin Categoría';
@@ -53,11 +36,64 @@ export default function AnalyticsTab({ tasks, stats }: AnalyticsTabProps) {
             return isWithinInterval(updatedDate, { start: dayStart, end: dayEnd });
         }).length;
 
+        // Capitalize first letter of day
+        const dayName = format(day, 'EEE', { locale: es });
+        const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
         return {
-            day: format(day, 'EEE'),
+            day: capitalizedDay,
             completed: completedCount
         };
     });
+
+    // Month-to-Month Comparison (This month vs Last month)
+    const thisMonthStart = startOfMonth(new Date());
+    const thisMonthEnd = endOfMonth(new Date());
+    const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+    const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+
+    const thisMonthCompleted = tasks.filter(task => {
+        if (task.status !== TaskStatus.COMPLETED || !task.updatedAt) return false;
+        const updatedDate = typeof task.updatedAt === 'string' ? parseISO(task.updatedAt) : task.updatedAt;
+        return isWithinInterval(updatedDate, { start: thisMonthStart, end: thisMonthEnd });
+    }).length;
+
+    const lastMonthCompleted = tasks.filter(task => {
+        if (task.status !== TaskStatus.COMPLETED || !task.updatedAt) return false;
+        const updatedDate = typeof task.updatedAt === 'string' ? parseISO(task.updatedAt) : task.updatedAt;
+        return isWithinInterval(updatedDate, { start: lastMonthStart, end: lastMonthEnd });
+    }).length;
+
+    const monthComparisonData = [
+        { month: format(lastMonthStart, 'MMMM', { locale: es }), completed: lastMonthCompleted },
+        { month: format(thisMonthStart, 'MMMM', { locale: es }), completed: thisMonthCompleted }
+    ];
+
+    // Calendar Heatmap Data (Last 3 months)
+    const today = new Date();
+    const threeMonthsAgo = subMonths(today, 3);
+    const heatmapStartDate = startOfWeek(threeMonthsAgo, { weekStartsOn: 0 }); // Start on Sunday
+    const heatmapEndDate = endOfWeek(today, { weekStartsOn: 0 });
+
+    const heatmapDays = eachDayOfInterval({ start: heatmapStartDate, end: heatmapEndDate });
+
+    const getIntensity = (count: number) => {
+        if (count === 0) return 'level-0';
+        if (count <= 2) return 'level-1';
+        if (count <= 4) return 'level-2';
+        if (count <= 6) return 'level-3';
+        return 'level-4';
+    };
+
+    const getCompletedCountForDay = (day: Date) => {
+        const dayStart = new Date(day.setHours(0, 0, 0, 0));
+        const dayEnd = new Date(day.setHours(23, 59, 59, 999));
+        return tasks.filter(task => {
+            if (task.status !== TaskStatus.COMPLETED || !task.updatedAt) return false;
+            const updatedDate = typeof task.updatedAt === 'string' ? parseISO(task.updatedAt) : task.updatedAt;
+            return isWithinInterval(updatedDate, { start: dayStart, end: dayEnd });
+        }).length;
+    };
 
     // Custom tooltip styling
     const customTooltipStyle = {
@@ -72,85 +108,86 @@ export default function AnalyticsTab({ tasks, stats }: AnalyticsTabProps) {
     return (
         <div className="analytics-tab">
             <div className="charts-section">
+                {/* Tasks at Risk Widget (Full Width, Top) */}
+                <div className="chart-card chart-card-wide">
+                    <TasksAtRiskWidget tasks={tasks} limit={10} />
+                </div>
+
                 {/* Weekly Productivity Trend */}
                 <div className="chart-card chart-card-wide">
                     <h2>📈 Productividad Semanal</h2>
                     <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={weeklyTrendData}>
+                        <AreaChart data={weeklyTrendData}>
+                            <defs>
+                                <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                             <XAxis dataKey="day" stroke="rgba(255,255,255,0.5)" />
                             <YAxis stroke="rgba(255,255,255,0.5)" />
                             <Tooltip contentStyle={customTooltipStyle} />
-                            <Legend />
-                            <Line
+                            <Area
                                 type="monotone"
                                 dataKey="completed"
                                 stroke="#10b981"
                                 strokeWidth={3}
-                                dot={{ fill: '#10b981', r: 5 }}
-                                activeDot={{ r: 8 }}
+                                fillOpacity={1}
+                                fill="url(#colorCompleted)"
                                 name="Tareas Completadas"
                             />
-                        </LineChart>
+                        </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* Tasks by Status (Bar) */}
+                {/* Calendar Heatmap */}
+                <div className="chart-card chart-card-wide">
+                    <h2>📅 Actividad de Completado (Últimos 3 meses)</h2>
+                    <div className="calendar-heatmap-container">
+                        <div className="heatmap-grid">
+                            {heatmapDays.map((day, index) => {
+                                const count = getCompletedCountForDay(day);
+                                const intensity = getIntensity(count);
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`heatmap-day ${intensity}`}
+                                        title={`${format(day, 'd MMM', { locale: es })}: ${count} tareas completadas`}
+                                    />
+                                );
+                            })}
+                        </div>
+                        <div className="heatmap-legend">
+                            <span>Menos</span>
+                            <div className="legend-scale">
+                                <div className="heatmap-day level-0"></div>
+                                <div className="heatmap-day level-1"></div>
+                                <div className="heatmap-day level-2"></div>
+                                <div className="heatmap-day level-3"></div>
+                                <div className="heatmap-day level-4"></div>
+                            </div>
+                            <span>Más</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Month-to-Month Comparison */}
                 <div className="chart-card">
-                    <h2>Tareas por Estado</h2>
+                    <h2>📊 Comparación Mes a Mes</h2>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={statusChartData}>
+                        <BarChart data={monthComparisonData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                            <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                            <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
                             <YAxis stroke="rgba(255,255,255,0.5)" />
                             <Tooltip contentStyle={customTooltipStyle} />
-                            <Legend />
-                            <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Status Distribution (Pie) */}
-                <div className="chart-card">
-                    <h2>Distribución por Estado</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={statusChartData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, percent }: { name: string; percent: number }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                            >
-                                {statusChartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Pie>
-                            <Tooltip contentStyle={customTooltipStyle} />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Tasks by Priority */}
-                <div className="chart-card">
-                    <h2>Tareas por Prioridad</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={priorityChartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                            <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-                            <YAxis stroke="rgba(255,255,255,0.5)" />
-                            <Tooltip contentStyle={customTooltipStyle} />
-                            <Legend />
-                            <Bar dataKey="value" fill="#a78bfa" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="completed" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Tareas Completadas" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Tasks by Category */}
-                <div className="chart-card">
+                <div className="chart-card chart-card-wide">
                     <h2>Tareas por Categoría</h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={categoryChartData}>
@@ -158,8 +195,11 @@ export default function AnalyticsTab({ tasks, stats }: AnalyticsTabProps) {
                             <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
                             <YAxis stroke="rgba(255,255,255,0.5)" />
                             <Tooltip contentStyle={customTooltipStyle} />
-                            <Legend />
-                            <Bar dataKey="value" fill="#ec4899" radius={[8, 8, 0, 0]} />
+                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                {(categoryChartData as any[]).map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

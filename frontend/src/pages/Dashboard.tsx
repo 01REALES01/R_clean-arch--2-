@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart3, PieChart as PieChartIcon, ListTodo, ClipboardList, Clock, Activity, CheckCircle2 } from 'lucide-react';
+import { BarChart3, PieChart as PieChartIcon, ListTodo, ClipboardList, Clock, Activity, CheckCircle2, LayoutDashboard } from 'lucide-react';
 import { apiService } from '../services/api';
 import { TaskStatus } from '../types';
 import type { Task } from '../types';
 import TaskDetailModal from '../components/TaskDetailModal';
 import OverviewTab from '../components/dashboard/OverviewTab';
 import AnalyticsTab from '../components/dashboard/AnalyticsTab';
+import WeekCalendar from '../components/dashboard/WeekCalendar';
+import TasksAtRiskWidget from '../components/dashboard/TasksAtRiskWidget';
+import AIChatWidget from '../components/AIChatWidget';
+import ConfirmModal from '../components/ConfirmModal';
 import './Dashboard.css';
 
 type TabType = 'overview' | 'analytics' | 'tasks';
@@ -23,6 +27,7 @@ export default function Dashboard() {
     completed: 0,
     total: 0,
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
 
   useEffect(() => {
     loadTasks();
@@ -63,11 +68,17 @@ export default function Dashboard() {
     navigate(`/tasks/${taskId}/edit`);
   };
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+  const handleDeleteTask = (taskId: string) => {
+    setDeleteConfirm({ open: true, id: taskId });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.id) return;
+
     try {
-      await apiService.deleteTask(taskId);
+      await apiService.deleteTask(deleteConfirm.id);
       setSelectedTask(null);
+      setDeleteConfirm({ open: false, id: null });
       loadTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -88,13 +99,51 @@ export default function Dashboard() {
   };
 
   const handleToggleSubtask = async (taskId: string, subtaskId: string) => {
+    // Optimistic update
+    const updateTaskState = (taskList: Task[]) => {
+      return taskList.map(t => {
+        if (t.id === taskId) {
+          const updatedSubtasks = t.subtasks?.map(s => {
+            if (s.id === subtaskId) {
+              return { ...s, completed: !s.completed };
+            }
+            return s;
+          });
+          return { ...t, subtasks: updatedSubtasks };
+        }
+        return t;
+      });
+    };
+
+    // Update local state immediately
+    setTasks(prevTasks => updateTaskState(prevTasks));
+
+    if (selectedTask && selectedTask.id === taskId) {
+      setSelectedTask(prev => {
+        if (!prev) return null;
+        const updatedSubtasks = prev.subtasks?.map(s => {
+          if (s.id === subtaskId) {
+            return { ...s, completed: !s.completed };
+          }
+          return s;
+        });
+        return { ...prev, subtasks: updatedSubtasks };
+      });
+    }
+
     try {
       await apiService.toggleSubtask(taskId, subtaskId);
+      // Fetch updated task to ensure consistency
       const updatedTask = await apiService.getTask(taskId);
-      setSelectedTask(updatedTask);
-      loadTasks();
+
+      // Update state with confirmed data
+      setTasks(prevTasks => prevTasks.map(t => t.id === taskId ? updatedTask : t));
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask(updatedTask);
+      }
     } catch (error) {
       console.error('Error toggling subtask:', error);
+      loadTasks();
     }
   };
 
@@ -134,7 +183,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Dashboard</h1>
+        <h1><LayoutDashboard size={32} className="inline mr-2" />Dashboard</h1>
         <Link to="/tasks/new" className="btn-primary">
           + Nueva Tarea
         </Link>
@@ -174,6 +223,12 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Week Calendar Widget */}
+      <WeekCalendar onTaskClick={handleTaskClick} />
+
+      {/* Tasks at Risk Widget (Compact) */}
+      <TasksAtRiskWidget tasks={tasks} limit={3} compact={true} />
+
       {/* Tabs */}
       <div className="dashboard-tabs">
         <button
@@ -211,7 +266,7 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'analytics' && (
-          <AnalyticsTab tasks={tasks} stats={stats} />
+          <AnalyticsTab tasks={tasks} />
         )}
 
         {activeTab === 'tasks' && (
@@ -282,6 +337,18 @@ export default function Dashboard() {
           onToggleSubtask={handleToggleSubtask}
         />
       )}
+
+      <AIChatWidget />
+
+      <ConfirmModal
+        isOpen={deleteConfirm.open}
+        title="Eliminar Tarea"
+        message="¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+        confirmText="Eliminar"
+        danger
+      />
     </div>
   );
 }

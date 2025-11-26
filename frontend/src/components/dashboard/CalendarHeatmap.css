@@ -1,0 +1,59 @@
+.calendar-heatmap-container {
+    padding: 1rem 0;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 16px);
+    gap: 4px;
+    margin-bottom: 1rem;
+}
+
+.heatmap-day {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.heatmap-day:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.heatmap-day.level-0 {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.heatmap-day.level-1 {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.heatmap-day.level-2 {
+    background-color: rgba(16, 185, 129, 0.4);
+}
+
+.heatmap-day.level-3 {
+    background-color: rgba(16, 185, 129, 0.7);
+}
+
+.heatmap-day.level-4 {
+    background-color: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+    margin-top: 1rem;
+}
+
+.legend-scale {
+    display: flex;
+    gap: 4px;
+}

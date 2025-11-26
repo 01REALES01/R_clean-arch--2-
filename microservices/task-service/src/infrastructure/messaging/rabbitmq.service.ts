@@ -26,7 +26,11 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private async connectWithRetry(): Promise<void> {
     try {
       this.logger.log(`Attempting to connect to RabbitMQ at ${this.url}`);
-      this.connection = await amqp.connect(this.url);
+      this.connection = await amqp.connect(this.url, {
+        socketOptions: {
+          family: 4 // Force IPv4
+        }
+      });
 
       this.connection.on('error', (err) => {
         this.logger.error('RabbitMQ connection error', err);

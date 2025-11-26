@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiService } from '../services/api';
 import type { AdminStatistics, User, Task, TaskStatus, TaskPriority } from '../types';
 import { TaskStatus as TaskStatusEnum, TaskPriority as TaskPriorityEnum } from '../types';
+import ConfirmModal from '../components/ConfirmModal';
 import './Admin.css';
 
 export default function Admin() {
@@ -12,6 +13,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'tasks'>('stats');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
 
   useEffect(() => {
     loadData();
@@ -48,11 +50,12 @@ export default function Admin() {
   // Note: We don't auto-reload on filter change to avoid too many API calls
   // User must click "Aplicar Filtros" button
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('¿Estás seguro de eliminar este usuario y todas sus tareas?')) return;
+  const handleDeleteUser = async () => {
+    if (!deleteConfirm.id) return;
 
     try {
-      await apiService.deleteUser(userId);
+      await apiService.deleteUser(deleteConfirm.id);
+      setDeleteConfirm({ open: false, id: null });
       loadData();
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -182,7 +185,7 @@ export default function Admin() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleDeleteUser(user.id)}
+                  onClick={() => setDeleteConfirm({ open: true, id: user.id })}
                   className="btn-danger"
                   disabled={user.role === 'ADMIN'}
                 >
@@ -255,6 +258,16 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteConfirm.open}
+        title="Eliminar Usuario"
+        message="¿Estás seguro de eliminar este usuario y todas sus tareas? Esta acción no se puede deshacer."
+        onConfirm={handleDeleteUser}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+        confirmText="Eliminar Usuario"
+        danger
+      />
     </div>
   );
 }

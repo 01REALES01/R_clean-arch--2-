@@ -91,7 +91,7 @@ class ApiService {
   }
 
   async registerAdmin(data: RegisterDto): Promise<RegisterResponse> {
-    const response = await this.taskApi.post<RegisterResponse>('/auth/register/admin', data);
+    const response = await this.taskApi.post<RegisterResponse>('/auth/register-admin', data);
     return response.data;
   }
 
@@ -149,6 +149,11 @@ class ApiService {
   // AI
   async generateTask(prompt: string): Promise<any> {
     const response = await this.taskApi.post('/ai/generate', { prompt });
+    return response.data;
+  }
+
+  async chat(message: string): Promise<{ message: string; timestamp: string }> {
+    const response = await this.taskApi.post('/ai/chat', { message });
     return response.data;
   }
 

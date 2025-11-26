@@ -1,0 +1,221 @@
+.tasks-at-risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.risk-task-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.risk-task-item:hover {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.risk-task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.risk-task-title {
+    font-weight: 500;
+    color: var(--text-primary, #f8fafc);
+}
+
+.risk-task-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.risk-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.risk-badge.overdue {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.risk-badge.critical {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.4);
+}
+
+.risk-badge.warning {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.risk-badge.safe {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.no-risk-tasks {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #94a3b8);
+    font-style: italic;
+}
+
+/* Scrollbar styling for the list */
+.tasks-at-risk-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tasks-at-risk-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.tasks-at-risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.risk-task-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.risk-task-item:hover {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.risk-task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.risk-task-title {
+    font-weight: 500;
+    color: var(--text-primary, #f8fafc);
+}
+
+.risk-task-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #94a3b8);
+}
+
+.risk-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.risk-badge.overdue {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.risk-badge.critical {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.4);
+}
+
+.risk-badge.warning {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.risk-badge.safe {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.no-risk-tasks {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #94a3b8);
+    font-style: italic;
+}
+
+/* Scrollbar styling for the list */
+.tasks-at-risk-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tasks-at-risk-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.tasks-at-risk-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.tasks-at-risk-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Compact Mode Styles */
+.compact-risk-widget {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.compact-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.compact-list .risk-task-item {
+    min-width: 250px;
+    flex: 0 0 auto;
+    margin-bottom: 0;
+}
+
+/* Scrollbar for horizontal list */
+.compact-list::-webkit-scrollbar {
+    height: 6px;
+}
+
+.compact-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.compact-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}

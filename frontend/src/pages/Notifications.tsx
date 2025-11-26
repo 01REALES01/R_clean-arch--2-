@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { apiService } from '../services/api';
 import { NotificationStatus } from '../types';
 import type { Notification } from '../types';
+import ConfirmModal from '../components/ConfirmModal';
 import './Notifications.css';
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
 
   useEffect(() => {
     loadNotifications();
@@ -35,11 +37,16 @@ export default function Notifications() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta notificación?')) return;
+  const handleDelete = (id: string) => {
+    setDeleteConfirm({ open: true, id });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.id) return;
 
     try {
-      await apiService.deleteNotification(id);
+      await apiService.deleteNotification(deleteConfirm.id);
+      setDeleteConfirm({ open: false, id: null });
       loadNotifications();
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -102,9 +109,8 @@ export default function Notifications() {
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`notification-item ${
-                notification.status === NotificationStatus.PENDING ? 'unread' : ''
-              }`}
+              className={`notification-item ${notification.status === NotificationStatus.PENDING ? 'unread' : ''
+                }`}
             >
               <div className="notification-icon">
                 {getNotificationIcon(notification.type)}
@@ -146,6 +152,16 @@ export default function Notifications() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteConfirm.open}
+        title="Eliminar Notificación"
+        message="¿Estás seguro de que deseas eliminar esta notificación? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+        confirmText="Eliminar"
+        danger
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientType } from 'redis';
+import * as dns from 'dns';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -8,14 +9,38 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(RedisService.name);
 
     constructor(private readonly configService: ConfigService) {
-        const host = this.configService.get<string>('REDIS_HOST') || 'localhost';
-        const port = this.configService.get<number>('REDIS_PORT') || 6379;
-        const url = `redis://${host}:${port}`;
+        const envHost = this.configService.get<string>('REDIS_HOST');
+        const envPort = this.configService.get<number>('REDIS_PORT');
 
-        this.client = createClient({ url });
+        this.logger.log(`[DEBUG] Raw REDIS_HOST from ConfigService: '${envHost}'`);
+        this.logger.log(`[DEBUG] Raw REDIS_PORT from ConfigService: '${envPort}'`);
+        this.logger.log(`[DEBUG] process.env.REDIS_HOST: '${process.env.REDIS_HOST}'`);
+
+        const host = envHost || 'localhost';
+        const port = envPort || 6379;
+
+        // Debug DNS resolution
+        dns.lookup(host, (err, address, family) => {
+            if (err) {
+                this.logger.error(`[DEBUG] DNS lookup failed for ${host}: ${err.message}`);
+            } else {
+                this.logger.log(`[DEBUG] DNS lookup for ${host}: Address=${address}, Family=IPv${family}`);
+            }
+        });
+
+        this.logger.log(`Attempting to connect to Redis at ${host}:${port}`);
+
+        this.client = createClient({
+            socket: {
+                host: host,
+                port: port,
+                family: 4 // Force IPv4
+            }
+        });
 
         this.client.on('error', (err) => this.logger.error('Redis Client Error', err));
         this.client.on('connect', () => this.logger.log('✅ Redis connected successfully'));
+        this.client.on('ready', () => this.logger.log('✅ Redis client ready'));
     }
 
     async onModuleInit() {

@@ -3,10 +3,11 @@ import {
     Briefcase, Home, GraduationCap, Dumbbell, ShoppingCart, Plane,
     Gamepad2, Music, Book, Lightbulb, Star, Flame,
     Laptop, Palette, Coins, Stethoscope, Utensils, Car,
-    Plus, Trash2, X
+    Plus, Trash2, X, FolderKanban
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { Category, CreateCategoryDto } from '../types';
+import ConfirmModal from '../components/ConfirmModal';
 import './Categories.css';
 
 const PRESET_COLORS = [
@@ -52,6 +53,7 @@ export default function Categories() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
     const [newCategory, setNewCategory] = useState<CreateCategoryDto>({
         name: '',
         color: PRESET_COLORS[0],
@@ -85,14 +87,14 @@ export default function Categories() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('¿Estás seguro de eliminar esta categoría?')) {
-            try {
-                await apiService.deleteCategory(id);
-                loadCategories();
-            } catch (error) {
-                console.error('Error deleting category:', error);
-            }
+    const handleDelete = async () => {
+        if (!deleteConfirm.id) return;
+        try {
+            await apiService.deleteCategory(deleteConfirm.id);
+            setDeleteConfirm({ open: false, id: null });
+            loadCategories();
+        } catch (error) {
+            console.error('Error deleting category:', error);
         }
     };
 
@@ -103,7 +105,7 @@ export default function Categories() {
     return (
         <div className="categories-container">
             <div className="categories-header">
-                <h1>Categorías</h1>
+                <h1><FolderKanban size={32} className="inline mr-2" />Categorías</h1>
                 <button className="btn-add-category" onClick={() => setIsModalOpen(true)}>
                     <Plus size={18} /> Nueva Categoría
                 </button>
@@ -120,7 +122,7 @@ export default function Categories() {
                         <div className="category-actions" onClick={(e) => e.stopPropagation()}>
                             <button
                                 className="btn-delete-category"
-                                onClick={() => handleDelete(category.id)}
+                                onClick={() => setDeleteConfirm({ open: true, id: category.id })}
                                 title="Eliminar"
                             >
                                 <Trash2 size={16} />
@@ -205,6 +207,16 @@ export default function Categories() {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={deleteConfirm.open}
+                title="Eliminar Categoría"
+                message="¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer."
+                onConfirm={handleDelete}
+                onCancel={() => setDeleteConfirm({ open: false, id: null })}
+                confirmText="Eliminar"
+                danger
+            />
         </div>
     );
 }
