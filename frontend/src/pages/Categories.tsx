@@ -137,8 +137,7 @@ export default function Categories() {
                         <div className="category-info">
                             <h3>{category.name}</h3>
                             <div className="category-stats">
-                                {/* Future: Add task count here */}
-                                0 tareas
+                                {category._count?.tasks || 0} tareas
                             </div>
                         </div>
                     </div>

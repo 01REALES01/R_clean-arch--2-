@@ -44,6 +44,8 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow_task_service
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -91,6 +93,8 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow_notification_service
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 3001

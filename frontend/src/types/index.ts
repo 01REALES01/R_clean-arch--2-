@@ -51,6 +51,9 @@ export interface Category {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    tasks: number;
+  };
 }
 
 export interface Subtask {

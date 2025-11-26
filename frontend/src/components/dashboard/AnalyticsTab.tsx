@@ -173,7 +173,7 @@ export default function AnalyticsTab({ tasks }: AnalyticsTabProps) {
                 </div>
 
                 {/* Month-to-Month Comparison */}
-                <div className="chart-card">
+                <div className="chart-card chart-card-wide">
                     <h2>📊 Comparación Mes a Mes</h2>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={monthComparisonData}>
